@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="ImgHorizen.SharpCAD/ImgHorizen.SharpCAD.csproj" />
+  <Project Path="SharpCAD.HyAgent/SharpCAD.HyAgent.csproj" />
+</Solution>
