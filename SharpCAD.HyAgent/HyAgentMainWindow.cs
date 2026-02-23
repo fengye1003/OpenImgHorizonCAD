@@ -7,6 +7,7 @@ using Google.GenAI;
 using Google.GenAI.Types;
 using System.Windows.Forms;
 using ReaLTaiizor.Controls;
+using System.ComponentModel;
 
 namespace SharpCAD.HyAgent
 {
@@ -20,6 +21,7 @@ namespace SharpCAD.HyAgent
         }
         
         MaterialContextMenuStrip actionMenu = new();
+        public bool MainDisposing = false;
 
 
         ServiceProviders ServiceProvider;
@@ -31,6 +33,17 @@ namespace SharpCAD.HyAgent
 
 
         Client? GeminiClient;
+        string Prompts = "You are now a CAD-Agent. " +
+              "Your responses require no explanations, analysis, or formatting adjustments. " +
+              "Do not provide any additional information or ask questions. " +
+              "Do not include suggested questions or other non-command-intent dialogue content at the end of your replies. " +
+              "Simply respond with a few lines of text containing commands that can be directly executed via CAD's command line. " +
+              "Only if the latest user input contains [dialogue] should you include other text. " +
+              "You do not need to confirm your understanding of the user's instructions by outputing. " +
+              "You can press ESC key with outputing {ESCAPE}. You should note that you are operating CAD and some command won't exit after line changed." +
+              "You must output one CAD command on one single line, paying attention to the grammar of absolute and relative positions." +
+              "For example, to draw a line from 0,0 to 1,1, you need to output \"LINE 0,0 1,1\" rather than \"LINE \r\n0,0\r\n1,1\"" +
+              "Starting from the next line, assist the user by outputting the commands that need to be executed: \r\n";
 
 
         Hashtable Config;
@@ -340,7 +353,8 @@ namespace SharpCAD.HyAgent
             {
                 try
                 {
-                    Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument.SendStringToExecute(latestOutput, true, false, false);
+                    Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument.SendStringToExecute(latestOutput.Replace("{ESCAPE}","\r\n(command)\r\n").Replace("\r\n"," ").Replace("\n"," "), true, false, true);
+                    DialogBox.Text += "\r\n\r\nHyAgent AI: \r\nSuccessfully executed command.\r\n";
                 }
                 catch (Exception ex)
                 {
@@ -366,19 +380,10 @@ namespace SharpCAD.HyAgent
             try
             {
                 Task<GenerateContentResponse> t = GeminiClient!.Models.GenerateContentAsync(
-              model: "gemini-2.5-flash", contents: "You are now a CAD-Agent. " +
-              "Your responses require no explanations, analysis, or formatting adjustments. " +
-              "Do not provide any additional information or ask questions. " +
-              "Do not include suggested questions or other non-command-intent dialogue content at the end of your replies. " +
-              "Simply respond with a few lines of text containing commands that can be directly executed via CAD's command line. " +
-              "Only if the latest user input contains [dialogue] should you include other text. " +
-              "You do not need to confirm your understanding of the user's instructions by outputing. " +
-              "Starting from the next line, " +
-              "assist the user by outputting the commands that need to be executed: \r\n" +
-              PromptBox.Text
+              model: "gemini-2.5-flash", contents: Prompts + PromptBox.Text
             );
                 var response = await t;
-                string result = response.Candidates![0].Content!.Parts![0].Text!.Replace("\n", "\r\n");
+                string result = response.Candidates![0].Content!.Parts![0].Text!.Replace("\n", "\r\n") + "\r\n{ESCAPE}";
                 DialogBox.Text += "\r\n\r\nAI: \r\n" + result;
                 latestOutput = result;
             }
@@ -403,6 +408,7 @@ namespace SharpCAD.HyAgent
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
+            DialogBox.Text += $"\r\n\r\nVersion: {Program.Version}\r\n";
             WindowScalingHelper helper = new();
             float factor = helper.GetDeviceScaleFactor(GoToChatBtn);
             Width = (int)(Width * factor);
@@ -413,6 +419,17 @@ namespace SharpCAD.HyAgent
                 item.Size = new Size((int)(item.Width * factor), (int)(item.Height * factor));
                 ResizeControls(item, factor);
             }
+        }
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            if (!MainDisposing)
+            {
+                e.Cancel = true;
+                Hide();
+            }
+            
+            base.OnClosing(e);
+
         }
     }
 }
