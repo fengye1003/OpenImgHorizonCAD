@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SharpCAD.HyAgent
+namespace ImgHorizon.HyAgent
 {
     partial class HyAgentMainWindow : MaterialForm
     {
@@ -71,6 +71,8 @@ namespace SharpCAD.HyAgent
             GenerateButton = new MaterialButton();
             PromptBox = new MaterialMultiLineTextBoxEdit();
             DialogBox = new MaterialMultiLineTextBoxEdit();
+            tabPage1 = new System.Windows.Forms.TabPage();
+            DeepseekApiKeyBox = new MaterialTextBoxEdit();
             PageTabControl.SuspendLayout();
             WelcomePage.SuspendLayout();
             BootSettingsLandPage.SuspendLayout();
@@ -82,6 +84,7 @@ namespace SharpCAD.HyAgent
             Local.SuspendLayout();
             DoneSettingPage.SuspendLayout();
             DialogPage.SuspendLayout();
+            tabPage1.SuspendLayout();
             SuspendLayout();
             // 
             // TitleLabel
@@ -284,6 +287,7 @@ namespace SharpCAD.HyAgent
             ApiSettingsPagesTab.Controls.Add(Gemini);
             ApiSettingsPagesTab.Controls.Add(ChatGPT);
             ApiSettingsPagesTab.Controls.Add(Local);
+            ApiSettingsPagesTab.Controls.Add(tabPage1);
             ApiSettingsPagesTab.Depth = 0;
             ApiSettingsPagesTab.Location = new Point(6, 277);
             ApiSettingsPagesTab.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.HOVER;
@@ -419,7 +423,7 @@ namespace SharpCAD.HyAgent
             ServiceSelectorBox.Hint = "Provider";
             ServiceSelectorBox.IntegralHeight = false;
             ServiceSelectorBox.ItemHeight = 43;
-            ServiceSelectorBox.Items.AddRange(new object[] { "None", "Google Gemini", "OpenAI ChatGPT", "Local Service" });
+            ServiceSelectorBox.Items.AddRange(new object[] { "None", "Deepseek - 深度求索", "Google Gemini", "OpenAI ChatGPT", "Local Service" });
             ServiceSelectorBox.Location = new Point(27, 222);
             ServiceSelectorBox.MaxDropDownItems = 4;
             ServiceSelectorBox.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.OUT;
@@ -654,6 +658,48 @@ namespace SharpCAD.HyAgent
             DialogBox.TextAlign = HorizontalAlignment.Left;
             DialogBox.UseSystemPasswordChar = false;
             // 
+            // tabPage1
+            // 
+            tabPage1.Controls.Add(DeepseekApiKeyBox);
+            tabPage1.Location = new Point(4, 26);
+            tabPage1.Name = "tabPage1";
+            tabPage1.Padding = new Padding(3);
+            tabPage1.Size = new Size(343, 318);
+            tabPage1.TabIndex = 4;
+            tabPage1.Text = "4";
+            tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // DeepseekApiKeyBox
+            // 
+            DeepseekApiKeyBox.AnimateReadOnly = false;
+            DeepseekApiKeyBox.AutoCompleteMode = AutoCompleteMode.None;
+            DeepseekApiKeyBox.AutoCompleteSource = AutoCompleteSource.None;
+            DeepseekApiKeyBox.BackgroundImageLayout = ImageLayout.None;
+            DeepseekApiKeyBox.CharacterCasing = CharacterCasing.Normal;
+            DeepseekApiKeyBox.Depth = 0;
+            DeepseekApiKeyBox.Font = new Font("Microsoft Sans Serif", 16F, FontStyle.Regular, GraphicsUnit.Pixel);
+            DeepseekApiKeyBox.HideSelection = true;
+            DeepseekApiKeyBox.Hint = "API key";
+            DeepseekApiKeyBox.LeadingIcon = null;
+            DeepseekApiKeyBox.Location = new Point(17, 35);
+            DeepseekApiKeyBox.MaxLength = 32767;
+            DeepseekApiKeyBox.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.OUT;
+            DeepseekApiKeyBox.Name = "DeepseekApiKeyBox";
+            DeepseekApiKeyBox.PasswordChar = '\0';
+            DeepseekApiKeyBox.PrefixSuffixText = null;
+            DeepseekApiKeyBox.ReadOnly = false;
+            DeepseekApiKeyBox.RightToLeft = RightToLeft.No;
+            DeepseekApiKeyBox.SelectedText = "";
+            DeepseekApiKeyBox.SelectionLength = 0;
+            DeepseekApiKeyBox.SelectionStart = 0;
+            DeepseekApiKeyBox.ShortcutsEnabled = true;
+            DeepseekApiKeyBox.Size = new Size(313, 48);
+            DeepseekApiKeyBox.TabIndex = 1;
+            DeepseekApiKeyBox.TabStop = false;
+            DeepseekApiKeyBox.TextAlign = HorizontalAlignment.Left;
+            DeepseekApiKeyBox.TrailingIcon = null;
+            DeepseekApiKeyBox.UseSystemPasswordChar = false;
+            // 
             // HyAgentMainWindow
             // 
             ClientSize = new Size(389, 791);
@@ -675,6 +721,7 @@ namespace SharpCAD.HyAgent
             DoneSettingPage.ResumeLayout(false);
             DoneSettingPage.PerformLayout();
             DialogPage.ResumeLayout(false);
+            tabPage1.ResumeLayout(false);
             ResumeLayout(false);
         }
         #endregion
@@ -715,5 +762,7 @@ namespace SharpCAD.HyAgent
         private MaterialButton GenerateButton;
         private MaterialMultiLineTextBoxEdit PromptBox;
         private MaterialFloatingActionButton aiOperationBtn;
+        private System.Windows.Forms.TabPage tabPage1;
+        private MaterialTextBoxEdit DeepseekApiKeyBox;
     }
 }

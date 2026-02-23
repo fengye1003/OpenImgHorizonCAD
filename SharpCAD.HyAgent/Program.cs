@@ -1,11 +1,13 @@
-﻿using System;
+﻿
+using ImgHorizon.HyAgent.Essencial_Repos;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SharpCAD.HyAgent
+namespace ImgHorizon.HyAgent
 {
     internal class Program
     {
@@ -18,6 +20,7 @@ namespace SharpCAD.HyAgent
         [STAThread]
         static void Main(string[] args)
         {
+            Log.EnableLogs = false;
             AgentUIInstance = new HyAgentMainWindow();
             Application.EnableVisualStyles();
             Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);

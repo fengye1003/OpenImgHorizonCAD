@@ -7,13 +7,14 @@ using Autodesk.AutoCAD.Runtime;
 using Autodesk.AutoCAD.Windows;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using SharpCAD.HyAgent;
+using ImgHorizon.HyAgent;
 using System.IO;
+using ImgHorizon.HyAgent.Essencial_Repos;
 
 [assembly: ComVisible(false)]
 [assembly: ExtensionApplication(typeof(AutoBase))]
 [assembly: CommandClass(typeof(AutoBase))]
-namespace SharpCAD.HyAgent
+namespace ImgHorizon.HyAgent
 {
 
     public class AutoBase : IExtensionApplication
@@ -36,8 +37,9 @@ namespace SharpCAD.HyAgent
         /// </summary>
         public void Initialize()
         {
+            Log.EnableLogs = false;
             SharedDoc = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument;
-            WriteMessage("\n欢迎使用 幻域·SharpCAD。\n" +
+            WriteMessage("\n欢迎使用 幻域·ImgHorizon。\n" +
                 "开发者：幻愿Recovery\n" +
                 "teko.IO SisTemS! 相互科技工作室 版权所有\n" +
                 $"版本: {Program.Version}\r\n");

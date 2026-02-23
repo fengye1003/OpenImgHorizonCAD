@@ -14,7 +14,7 @@ using System.Text;
 //Completed at 2022/08/28 12:14
 
 
-namespace SharpCAD.HyAgent.Essencial_Repos
+namespace ImgHorizon.HyAgent.Essencial_Repos
 {
     public class PropertiesHelper
     {

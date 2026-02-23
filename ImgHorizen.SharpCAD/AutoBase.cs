@@ -5,14 +5,14 @@ using Autodesk.AutoCAD.Geometry;
 using Autodesk.AutoCAD.Ribbon;
 using Autodesk.AutoCAD.Runtime;
 using Autodesk.AutoCAD.Windows;
-using ImgHorizen.SharpCAD;
+using ImgHorizen.CADExample;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
 [assembly: ComVisible(false)]
 [assembly: ExtensionApplication(typeof(AutoBase))]
 [assembly: CommandClass(typeof(AutoBase))]
-namespace ImgHorizen.SharpCAD
+namespace ImgHorizen.CADExample
 {
 
     public class AutoBase : IExtensionApplication
@@ -36,7 +36,7 @@ namespace ImgHorizen.SharpCAD
         public void Initialize()
         {
             SharedDoc = Application.DocumentManager.MdiActiveDocument;
-            WriteMessage("\n欢迎使用 幻域·SharpCAD。\n" +
+            WriteMessage("\n欢迎使用 幻域·ImgHorizon。\n" +
                 "开发者：幻愿Recovery\n" +
                 "teko.IO SisTemS! 相互科技工作室 版权所有");
 

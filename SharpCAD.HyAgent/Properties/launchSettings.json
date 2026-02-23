@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "SharpCAD.HyAgent": {
+    "ImgHorizon.HyAgent": {
       "commandName": "Project"
     },
     "AutoCAD": {

@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 
-namespace SharpCAD.HyAgent.Essencial_Repos
+namespace ImgHorizon.HyAgent.Essencial_Repos
 {
     //日志模块更新信息：20260221.a
     /// <summary>

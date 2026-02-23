@@ -1,6 +1,6 @@
 ﻿using ReaLTaiizor.Forms;
 using ReaLTaiizor.Manager;
-using SharpCAD.HyAgent.Essencial_Repos;
+using ImgHorizon.HyAgent.Essencial_Repos;
 using System.Collections;
 using System.IO;
 using Google.GenAI;
@@ -8,13 +8,16 @@ using Google.GenAI.Types;
 using System.Windows.Forms;
 using ReaLTaiizor.Controls;
 using System.ComponentModel;
+using ImgHorizon.HyAgent.AIHelpers;
+using ImgHorizon.HyAgent.AIHelpers.DeepseekApi;
 
-namespace SharpCAD.HyAgent
+namespace ImgHorizon.HyAgent
 {
     partial class HyAgentMainWindow : MaterialForm
     {
         enum ServiceProviders
         {
+            Deepseek,
             Gemini,
             ChatGPT,
             Local
@@ -32,7 +35,9 @@ namespace SharpCAD.HyAgent
         string latestOutput = "";
 
 
-        Client? GeminiClient;
+        Google.GenAI.Client? GeminiClient;
+        AIHelpers.DeepseekApi.Client? DeepseekClient;
+
         string Prompts = "You are now a CAD-Agent. " +
               "Your responses require no explanations, analysis, or formatting adjustments. " +
               "Do not provide any additional information or ask questions. " +
@@ -50,6 +55,8 @@ namespace SharpCAD.HyAgent
         Hashtable ConfigStandard = new Hashtable()
         {
             { "apiType", "unknown" },
+            { "geminiKey", "unknown" },
+            { "deepseekKey", "unknown" },
             { "apiKey", "unknown" },
             { "type", "HyAgent.MainConfig" },
             { "skipWelcomeOnBoot", "false" }
@@ -96,6 +103,9 @@ namespace SharpCAD.HyAgent
             }
             switch ((string)Config["apiType"]!)
             {
+                case "deepseek":
+                    ServiceProvider = ServiceProviders.Deepseek; 
+                    break;
                 case "gemini":
                     ServiceProvider = ServiceProviders.Gemini;
                     break;
@@ -271,6 +281,10 @@ namespace SharpCAD.HyAgent
                     ApiSettingsPagesTab.SelectTab(3);
                     ServiceConfigueNextBtn.Enabled = false;
                     break;
+                case "Deepseek - 深度求索":
+                    ApiSettingsPagesTab.SelectTab(4);
+                    ServiceConfigueNextBtn.Enabled = true;
+                    break;
                 default:
                     break;
             }
@@ -316,10 +330,17 @@ namespace SharpCAD.HyAgent
             Config = ConfigStandard;
             switch (ServiceSelectorBox.Text)
             {
+                case "Deepseek - 深度求索":
+                    Config["apiType"] = "deepseek";
+                    ServiceProvider = ServiceProviders.Deepseek;
+                    Config["apiKey"] = DeepseekApiKeyBox.Text;
+                    Config["deepseekKey"] = DeepseekApiKeyBox.Text;
+                    break;
                 case "Google Gemini":
                     Config["apiType"] = "gemini";
                     ServiceProvider = ServiceProviders.Gemini;
                     Config["apiKey"] = GeminiApiKeyBox.Text;
+                    Config["geminiKey"] = GeminiApiKeyBox.Text;
                     break;
                 case "OpenAI ChatGPT":
                     Config["apiType"] = "chatgpt";
@@ -344,7 +365,26 @@ namespace SharpCAD.HyAgent
 
         private void InitializeAI()
         {
-            GeminiClient = new Client(apiKey: ApiKey);
+            if (GeminiClient != null)
+            {
+                GeminiClient.Dispose();
+            }
+            switch (ServiceProvider)
+            {
+                case ServiceProviders.Deepseek:
+                    DeepseekClient = new(ApiKey);
+                    break;
+                case ServiceProviders.Gemini:
+                    GeminiClient = new(apiKey: ApiKey);
+                    break;
+                case ServiceProviders.ChatGPT:
+                    break;
+                case ServiceProviders.Local:
+                    break;
+                default:
+                    break;
+            }
+            
             GenerateButton.ContextMenuStrip = actionMenu;
             actionMenu.Items.Clear();
             ToolStripMenuItem executeLatestInCAD = new();
@@ -377,6 +417,43 @@ namespace SharpCAD.HyAgent
 
         private async void Generate()
         {
+            switch (ServiceProvider)
+            {
+                case ServiceProviders.Deepseek:
+                    DeepseekGenerate();
+                    break;
+                case ServiceProviders.Gemini:
+                    GeminiGenerateStream();
+                    break;
+                case ServiceProviders.ChatGPT:
+                    break;
+                case ServiceProviders.Local:
+                    break;
+                default:
+                    break;
+            }
+            
+        }
+
+        async void DeepseekGenerate()
+        {
+            try
+            {
+                Task<DeepseekResponse> t = DeepseekClient!.GenerateTextAsync(SystemInstructions: Prompts, Prompts: PromptBox.Text);
+                string result = DeepseekClient.ParseDeepSeekResponse(await t);
+                result = result!.Replace("\n", "\r\n") + "\r\n{ESCAPE}";
+                DialogBox.Text += "\r\n\r\nAI: \r\n" + result;
+                latestOutput = result;
+            }
+            catch (Exception ex)
+            {
+                DialogBox.Text += "\r\n\r\nAI Error: \r\n" + ex;
+            }
+            GenerateButton.Enabled = true;
+        }
+
+        private async void GeminiGenerate()
+        {
             try
             {
                 Task<GenerateContentResponse> t = GeminiClient!.Models.GenerateContentAsync(
@@ -391,7 +468,41 @@ namespace SharpCAD.HyAgent
             {
                 DialogBox.Text += "\r\n\r\nAI Error: \r\n" + ex;
             }
-            
+
+            GenerateButton.Enabled = true;
+        }
+
+        async void GeminiGenerateStream()
+        {
+            try
+            {
+
+                DialogBox.Text += "\r\n\r\nAI: \r\n";
+                string originDialog = DialogBox.Text;
+                string result = "";
+                DialogBox.Text += "[Working...]\r\n";
+                await foreach (var chunk in GeminiClient!.Models.GenerateContentStreamAsync(
+                    model: "gemini-2.5-flash",
+                    contents: Prompts + PromptBox.Text
+                 ))
+                {
+                    this.Invoke(new Action(() =>
+                    {
+                        DialogBox.Text += chunk!.Candidates![0].Content!.Parts![0].Text;
+                    }));
+                    
+                    result += chunk!.Candidates![0].Content!.Parts![0].Text;
+                }
+                result = result.Replace("\n", "\r\n") + "\r\n{ESCAPE}";
+                DialogBox.Text = originDialog + result;
+
+                latestOutput = result;
+            }
+            catch (Exception ex)
+            {
+                DialogBox.Text += "\r\n\r\nAI Error: \r\n" + ex;
+            }
+
             GenerateButton.Enabled = true;
         }
 
