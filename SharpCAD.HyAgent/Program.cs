@@ -12,6 +12,7 @@ namespace SharpCAD.HyAgent
         static void Main(string[] args)
         {
             Application.EnableVisualStyles();
+            Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
             Application.Run(new HyAgentMainWindow());
         }
     }

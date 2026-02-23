@@ -41,10 +41,35 @@ namespace SharpCAD.HyAgent
             { "type", "HyAgent.MainConfig" },
             { "skipWelcomeOnBoot", "false" }
         };
+
+        void ResizeControls(Control item, float factor)
+        {
+            try
+            {
+                var TabPageItem = (MaterialTabControl)item;
+                foreach (System.Windows.Forms.TabPage c2 in TabPageItem.TabPages)
+                {
+                    foreach (Control c3 in c2.Controls)
+                    {
+                        c3.Location = new Point((int)(c3.Location.X * factor), (int)(c3.Location.Y * factor));
+                        c3.Size = new Size((int)(c3.Width * factor), (int)(c3.Height * factor));
+                        ResizeControls(c3, factor);
+                    }
+                }
+                
+            }
+            catch
+            {
+
+            }
+        }
+
         public HyAgentMainWindow()
         {
             MaterialSkinManager.Instance.AddFormToManage(this);
             InitializeComponent();
+            
+
             Directory.CreateDirectory("./.imgHorizon/Properties/");
             Config = PropertiesHelper.AutoCheck(ConfigStandard, PROPERTIES_PATH);
             if ((string)Config["type"]! != "HyAgent.MainConfig")
@@ -373,6 +398,21 @@ namespace SharpCAD.HyAgent
         private void GenerateItems(object sender, LayoutEventArgs e)
         {
             
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+            WindowScalingHelper helper = new();
+            float factor = helper.GetDeviceScaleFactor(GoToChatBtn);
+            Width = (int)(Width * factor);
+            Height = (int)(Height * factor);
+            foreach (Control item in Controls)
+            {
+                item.Location = new Point((int)(item.Location.X * factor), (int)(item.Location.Y * factor));
+                item.Size = new Size((int)(item.Width * factor), (int)(item.Height * factor));
+                ResizeControls(item, factor);
+            }
         }
     }
 }
