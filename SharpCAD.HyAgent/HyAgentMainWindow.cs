@@ -451,6 +451,8 @@ namespace ImgHorizon.HyAgent
         public List<ProgressReport> DsOutputQueue = new();
         async void DeepseekGenerateStream(bool Thinking = false)
         {
+            DsOutputQueue = new();
+
             Thread thread = new Thread(new ThreadStart(async () =>
             {
                 int readIndex = 0;
@@ -484,8 +486,6 @@ namespace ImgHorizon.HyAgent
                         // 关键点：使用 lock 确保后台线程在产生 Report 指令时是串行的
                         lock (_syncLock)
                         {
-                            // 必须使用同步 Invoke，它会阻塞当前后台线程直到 UI 处理完毕
-                            // 这样可以物理上强制下一个 chunk 必须等这一个画完才能进来
                             this.Invoke(new Action(() =>
                             {
                                 if (DsOutputQueue[readIndex].ProgressType == ProgressReport.ProgressTypes.Reasoning)
