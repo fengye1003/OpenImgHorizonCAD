@@ -88,7 +88,12 @@ namespace ImgHorizon.HyAgent
         {
             MaterialSkinManager.Instance.AddFormToManage(this);
             InitializeComponent();
-            
+
+            DialogBox.TextChanged += (sender, e) =>
+            {
+                DialogBox.SelectionStart = DialogBox.Text.Length;
+                DialogBox.ScrollToCaret();
+            };
 
             Directory.CreateDirectory("./.imgHorizon/Properties/");
             Config = PropertiesHelper.AutoCheck(ConfigStandard, PROPERTIES_PATH);
@@ -412,7 +417,6 @@ namespace ImgHorizon.HyAgent
             Generate();
             //DialogBox.Text += "\r\nCiallo!";
 
-            PromptBox.Text = "";
         }
 
         private async void Generate()
@@ -420,7 +424,7 @@ namespace ImgHorizon.HyAgent
             switch (ServiceProvider)
             {
                 case ServiceProviders.Deepseek:
-                    DeepseekGenerate();
+                    DeepseekGenerateStream();
                     break;
                 case ServiceProviders.Gemini:
                     GeminiGenerateStream();
@@ -433,6 +437,39 @@ namespace ImgHorizon.HyAgent
                     break;
             }
             
+        }
+
+        async void DeepseekGenerateStream()
+        {
+            try
+            {
+                DialogBox.Text += "\r\n\r\nAI: \r\n";
+                string originDialog = DialogBox.Text;
+                DialogBox.Text += "[Working...]\r\n";
+                string result = "";
+                var progress = new Progress<string>(chunk =>
+                {
+                    result += chunk;
+                    DialogBox.Text += chunk;
+                    DialogBox.SelectionStart = DialogBox.Text.Length;
+                });
+                Task t = Task.Run(async () =>
+                {
+                    await DeepseekClient!.GenerateTextStreamAsync(progress, SystemInstructions: Prompts, Prompts: PromptBox.Text);
+                    //MessageBox.Show(PromptBox.Text);
+                });
+                await t;
+                result = result!.Replace("\n", "\r\n") + "\r\n{ESCAPE}";
+                DialogBox.Text = originDialog + result;
+                latestOutput = result;
+
+                
+            }
+            catch (Exception ex)
+            {
+                DialogBox.Text += "\r\n\r\nAI Error: \r\n" + ex;
+            }
+            CompleteGeneratingSteps();
         }
 
         async void DeepseekGenerate()
@@ -449,7 +486,7 @@ namespace ImgHorizon.HyAgent
             {
                 DialogBox.Text += "\r\n\r\nAI Error: \r\n" + ex;
             }
-            GenerateButton.Enabled = true;
+            CompleteGeneratingSteps();
         }
 
         private async void GeminiGenerate()
@@ -468,8 +505,7 @@ namespace ImgHorizon.HyAgent
             {
                 DialogBox.Text += "\r\n\r\nAI Error: \r\n" + ex;
             }
-
-            GenerateButton.Enabled = true;
+            CompleteGeneratingSteps();
         }
 
         async void GeminiGenerateStream()
@@ -502,8 +538,19 @@ namespace ImgHorizon.HyAgent
             {
                 DialogBox.Text += "\r\n\r\nAI Error: \r\n" + ex;
             }
+            CompleteGeneratingSteps();
 
+
+        }
+
+        void CompleteGeneratingSteps()
+        {
             GenerateButton.Enabled = true;
+
+            PromptBox.Text = "";
+
+            DialogBox.SelectionStart = DialogBox.Text.Length;
+            DialogBox.ScrollToCaret();
         }
 
         private void materialFloatingActionButton1_Click(object sender, EventArgs e)

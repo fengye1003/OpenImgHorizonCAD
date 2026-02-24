@@ -58,6 +58,7 @@ namespace ImgHorizon.HyAgent
         [CommandMethod("hyagentpanel")]
         public void StartHyAgentPanel()
         {
+            System.Windows.Forms.Application.EnableVisualStyles();
             Editor ed = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument.Editor;
             ed.WriteMessage("正在拉起Agent面板...");
             if (Program.AgentUIInstance == null)

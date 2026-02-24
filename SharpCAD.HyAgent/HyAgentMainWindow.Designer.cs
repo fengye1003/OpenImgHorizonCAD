@@ -70,7 +70,7 @@ namespace ImgHorizon.HyAgent
             aiOperationBtn = new MaterialFloatingActionButton();
             GenerateButton = new MaterialButton();
             PromptBox = new MaterialMultiLineTextBoxEdit();
-            DialogBox = new MaterialMultiLineTextBoxEdit();
+            DialogBox = new TextBox();
             tabPage1 = new System.Windows.Forms.TabPage();
             DeepseekApiKeyBox = new MaterialTextBoxEdit();
             PageTabControl.SuspendLayout();
@@ -635,16 +635,17 @@ namespace ImgHorizon.HyAgent
             // 
             // DialogBox
             // 
-            DialogBox.AnimateReadOnly = false;
+            //DialogBox.AnimateReadOnly = false;
             DialogBox.BackgroundImageLayout = ImageLayout.None;
             DialogBox.CharacterCasing = CharacterCasing.Normal;
-            DialogBox.Depth = 0;
+            //DialogBox.Depth = 0;
             DialogBox.HideSelection = true;
             DialogBox.Location = new Point(6, 6);
             DialogBox.MaxLength = 32767;
-            DialogBox.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.OUT;
+            //DialogBox.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.OUT;
             DialogBox.Name = "DialogBox";
             DialogBox.PasswordChar = '\0';
+            DialogBox.Multiline = true;
             DialogBox.ReadOnly = true;
             DialogBox.ScrollBars = ScrollBars.Vertical;
             DialogBox.SelectedText = "";
@@ -758,7 +759,7 @@ namespace ImgHorizon.HyAgent
         private MaterialLabel SetSubtitleLabel;
         private MaterialButton GoToChatBtn;
         private System.Windows.Forms.TabPage DialogPage;
-        private MaterialMultiLineTextBoxEdit DialogBox;
+        private TextBox DialogBox;
         private MaterialButton GenerateButton;
         private MaterialMultiLineTextBoxEdit PromptBox;
         private MaterialFloatingActionButton aiOperationBtn;
