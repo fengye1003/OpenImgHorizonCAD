@@ -57,6 +57,8 @@ namespace ImgHorizon.HyAgent
             materialLabel2 = new MaterialLabel();
             Local = new System.Windows.Forms.TabPage();
             materialLabel3 = new MaterialLabel();
+            tabPage1 = new System.Windows.Forms.TabPage();
+            DeepseekApiKeyBox = new MaterialTextBoxEdit();
             ServiceSelectorBox = new MaterialComboBox();
             ServiceConfigueNextBtn = new MaterialButton();
             ServiceConfigueSubtitleLabel = new MaterialLabel();
@@ -71,8 +73,13 @@ namespace ImgHorizon.HyAgent
             GenerateButton = new MaterialButton();
             PromptBox = new MaterialMultiLineTextBoxEdit();
             DialogBox = new TextBox();
-            tabPage1 = new System.Windows.Forms.TabPage();
-            DeepseekApiKeyBox = new MaterialTextBoxEdit();
+            SettingPage = new System.Windows.Forms.TabPage();
+            SettingPageScrollBar = new MaterialScrollBar();
+            SettingPanel = new System.Windows.Forms.Panel();
+            SettingContentsPanel = new System.Windows.Forms.Panel();
+            SaveAndExitSettingsBtn = new MaterialButton();
+            DarkModeSwitch = new MaterialSwitch();
+            materialLabel1 = new MaterialLabel();
             PageTabControl.SuspendLayout();
             WelcomePage.SuspendLayout();
             BootSettingsLandPage.SuspendLayout();
@@ -82,9 +89,12 @@ namespace ImgHorizon.HyAgent
             Gemini.SuspendLayout();
             ChatGPT.SuspendLayout();
             Local.SuspendLayout();
+            tabPage1.SuspendLayout();
             DoneSettingPage.SuspendLayout();
             DialogPage.SuspendLayout();
-            tabPage1.SuspendLayout();
+            SettingPage.SuspendLayout();
+            SettingPanel.SuspendLayout();
+            SettingContentsPanel.SuspendLayout();
             SuspendLayout();
             // 
             // TitleLabel
@@ -151,13 +161,14 @@ namespace ImgHorizon.HyAgent
             PageTabControl.Controls.Add(ConfigueServicePage);
             PageTabControl.Controls.Add(DoneSettingPage);
             PageTabControl.Controls.Add(DialogPage);
+            PageTabControl.Controls.Add(SettingPage);
             PageTabControl.Depth = 0;
             PageTabControl.Location = new Point(6, 67);
             PageTabControl.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.HOVER;
             PageTabControl.Multiline = true;
             PageTabControl.Name = "PageTabControl";
             PageTabControl.SelectedIndex = 0;
-            PageTabControl.Size = new Size(371, 727);
+            PageTabControl.Size = new Size(386, 745);
             PageTabControl.TabIndex = 4;
             // 
             // WelcomePage
@@ -170,7 +181,7 @@ namespace ImgHorizon.HyAgent
             WelcomePage.Location = new Point(4, 26);
             WelcomePage.Name = "WelcomePage";
             WelcomePage.Padding = new Padding(3);
-            WelcomePage.Size = new Size(363, 697);
+            WelcomePage.Size = new Size(378, 715);
             WelcomePage.TabIndex = 0;
             WelcomePage.Text = "0";
             // 
@@ -184,7 +195,7 @@ namespace ImgHorizon.HyAgent
             BootSettingsLandPage.Location = new Point(4, 26);
             BootSettingsLandPage.Name = "BootSettingsLandPage";
             BootSettingsLandPage.Padding = new Padding(3);
-            BootSettingsLandPage.Size = new Size(363, 697);
+            BootSettingsLandPage.Size = new Size(378, 715);
             BootSettingsLandPage.TabIndex = 1;
             BootSettingsLandPage.Text = "1";
             // 
@@ -265,7 +276,7 @@ namespace ImgHorizon.HyAgent
             ConfigueServicePage.Location = new Point(4, 26);
             ConfigueServicePage.Name = "ConfigueServicePage";
             ConfigueServicePage.Padding = new Padding(3);
-            ConfigueServicePage.Size = new Size(363, 697);
+            ConfigueServicePage.Size = new Size(378, 715);
             ConfigueServicePage.TabIndex = 2;
             ConfigueServicePage.Text = "2";
             // 
@@ -408,6 +419,48 @@ namespace ImgHorizon.HyAgent
             materialLabel3.TabIndex = 10;
             materialLabel3.Text = "Currently not supported. Please subscribe to upgrades.";
             // 
+            // tabPage1
+            // 
+            tabPage1.Controls.Add(DeepseekApiKeyBox);
+            tabPage1.Location = new Point(4, 26);
+            tabPage1.Name = "tabPage1";
+            tabPage1.Padding = new Padding(3);
+            tabPage1.Size = new Size(343, 318);
+            tabPage1.TabIndex = 4;
+            tabPage1.Text = "4";
+            tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // DeepseekApiKeyBox
+            // 
+            DeepseekApiKeyBox.AnimateReadOnly = false;
+            DeepseekApiKeyBox.AutoCompleteMode = AutoCompleteMode.None;
+            DeepseekApiKeyBox.AutoCompleteSource = AutoCompleteSource.None;
+            DeepseekApiKeyBox.BackgroundImageLayout = ImageLayout.None;
+            DeepseekApiKeyBox.CharacterCasing = CharacterCasing.Normal;
+            DeepseekApiKeyBox.Depth = 0;
+            DeepseekApiKeyBox.Font = new Font("Microsoft Sans Serif", 16F, FontStyle.Regular, GraphicsUnit.Pixel);
+            DeepseekApiKeyBox.HideSelection = true;
+            DeepseekApiKeyBox.Hint = "API key";
+            DeepseekApiKeyBox.LeadingIcon = null;
+            DeepseekApiKeyBox.Location = new Point(17, 35);
+            DeepseekApiKeyBox.MaxLength = 32767;
+            DeepseekApiKeyBox.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.OUT;
+            DeepseekApiKeyBox.Name = "DeepseekApiKeyBox";
+            DeepseekApiKeyBox.PasswordChar = '\0';
+            DeepseekApiKeyBox.PrefixSuffixText = null;
+            DeepseekApiKeyBox.ReadOnly = false;
+            DeepseekApiKeyBox.RightToLeft = RightToLeft.No;
+            DeepseekApiKeyBox.SelectedText = "";
+            DeepseekApiKeyBox.SelectionLength = 0;
+            DeepseekApiKeyBox.SelectionStart = 0;
+            DeepseekApiKeyBox.ShortcutsEnabled = true;
+            DeepseekApiKeyBox.Size = new Size(313, 48);
+            DeepseekApiKeyBox.TabIndex = 1;
+            DeepseekApiKeyBox.TabStop = false;
+            DeepseekApiKeyBox.TextAlign = HorizontalAlignment.Left;
+            DeepseekApiKeyBox.TrailingIcon = null;
+            DeepseekApiKeyBox.UseSystemPasswordChar = false;
+            // 
             // ServiceSelectorBox
             // 
             ServiceSelectorBox.AutoResize = false;
@@ -490,7 +543,7 @@ namespace ImgHorizon.HyAgent
             DoneSettingPage.Location = new Point(4, 26);
             DoneSettingPage.Name = "DoneSettingPage";
             DoneSettingPage.Padding = new Padding(3);
-            DoneSettingPage.Size = new Size(363, 697);
+            DoneSettingPage.Size = new Size(378, 715);
             DoneSettingPage.TabIndex = 3;
             DoneSettingPage.Text = "3";
             // 
@@ -568,7 +621,7 @@ namespace ImgHorizon.HyAgent
             DialogPage.Location = new Point(4, 26);
             DialogPage.Name = "DialogPage";
             DialogPage.Padding = new Padding(3);
-            DialogPage.Size = new Size(363, 697);
+            DialogPage.Size = new Size(378, 715);
             DialogPage.TabIndex = 4;
             DialogPage.Text = "4";
             // 
@@ -635,71 +688,113 @@ namespace ImgHorizon.HyAgent
             // 
             // DialogBox
             // 
-            //DialogBox.AnimateReadOnly = false;
             DialogBox.BackgroundImageLayout = ImageLayout.None;
-            DialogBox.CharacterCasing = CharacterCasing.Normal;
-            //DialogBox.Depth = 0;
-            DialogBox.HideSelection = true;
             DialogBox.Location = new Point(6, 6);
-            DialogBox.MaxLength = 32767;
-            //DialogBox.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.OUT;
-            DialogBox.Name = "DialogBox";
-            DialogBox.PasswordChar = '\0';
             DialogBox.Multiline = true;
+            DialogBox.Name = "DialogBox";
             DialogBox.ReadOnly = true;
             DialogBox.ScrollBars = ScrollBars.Vertical;
-            DialogBox.SelectedText = "";
-            DialogBox.SelectionLength = 0;
-            DialogBox.SelectionStart = 0;
-            DialogBox.ShortcutsEnabled = true;
             DialogBox.Size = new Size(354, 534);
             DialogBox.TabIndex = 1;
             DialogBox.TabStop = false;
             DialogBox.Text = "AI can make mistakes. Check the results carefully.";
-            DialogBox.TextAlign = HorizontalAlignment.Left;
-            DialogBox.UseSystemPasswordChar = false;
             // 
-            // tabPage1
+            // SettingPage
             // 
-            tabPage1.Controls.Add(DeepseekApiKeyBox);
-            tabPage1.Location = new Point(4, 26);
-            tabPage1.Name = "tabPage1";
-            tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(343, 318);
-            tabPage1.TabIndex = 4;
-            tabPage1.Text = "4";
-            tabPage1.UseVisualStyleBackColor = true;
+            SettingPage.Controls.Add(SettingPageScrollBar);
+            SettingPage.Controls.Add(SettingPanel);
+            SettingPage.Location = new Point(4, 26);
+            SettingPage.Name = "SettingPage";
+            SettingPage.Size = new Size(378, 715);
+            SettingPage.TabIndex = 0;
+            SettingPage.Text = "5";
+            SettingPage.UseVisualStyleBackColor = true;
             // 
-            // DeepseekApiKeyBox
+            // SettingPageScrollBar
             // 
-            DeepseekApiKeyBox.AnimateReadOnly = false;
-            DeepseekApiKeyBox.AutoCompleteMode = AutoCompleteMode.None;
-            DeepseekApiKeyBox.AutoCompleteSource = AutoCompleteSource.None;
-            DeepseekApiKeyBox.BackgroundImageLayout = ImageLayout.None;
-            DeepseekApiKeyBox.CharacterCasing = CharacterCasing.Normal;
-            DeepseekApiKeyBox.Depth = 0;
-            DeepseekApiKeyBox.Font = new Font("Microsoft Sans Serif", 16F, FontStyle.Regular, GraphicsUnit.Pixel);
-            DeepseekApiKeyBox.HideSelection = true;
-            DeepseekApiKeyBox.Hint = "API key";
-            DeepseekApiKeyBox.LeadingIcon = null;
-            DeepseekApiKeyBox.Location = new Point(17, 35);
-            DeepseekApiKeyBox.MaxLength = 32767;
-            DeepseekApiKeyBox.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.OUT;
-            DeepseekApiKeyBox.Name = "DeepseekApiKeyBox";
-            DeepseekApiKeyBox.PasswordChar = '\0';
-            DeepseekApiKeyBox.PrefixSuffixText = null;
-            DeepseekApiKeyBox.ReadOnly = false;
-            DeepseekApiKeyBox.RightToLeft = RightToLeft.No;
-            DeepseekApiKeyBox.SelectedText = "";
-            DeepseekApiKeyBox.SelectionLength = 0;
-            DeepseekApiKeyBox.SelectionStart = 0;
-            DeepseekApiKeyBox.ShortcutsEnabled = true;
-            DeepseekApiKeyBox.Size = new Size(313, 48);
-            DeepseekApiKeyBox.TabIndex = 1;
-            DeepseekApiKeyBox.TabStop = false;
-            DeepseekApiKeyBox.TextAlign = HorizontalAlignment.Left;
-            DeepseekApiKeyBox.TrailingIcon = null;
-            DeepseekApiKeyBox.UseSystemPasswordChar = false;
+            SettingPageScrollBar.Depth = 0;
+            SettingPageScrollBar.Location = new Point(365, 3);
+            SettingPageScrollBar.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.HOVER;
+            SettingPageScrollBar.Name = "SettingPageScrollBar";
+            SettingPageScrollBar.Orientation = ReaLTaiizor.Enum.Material.MateScrollOrientation.Vertical;
+            SettingPageScrollBar.Size = new Size(10, 671);
+            SettingPageScrollBar.TabIndex = 7;
+            SettingPageScrollBar.Text = "materialScrollBar1";
+            // 
+            // SettingPanel
+            // 
+            SettingPanel.AutoScroll = true;
+            SettingPanel.BackColor = Color.Transparent;
+            SettingPanel.Controls.Add(SettingContentsPanel);
+            SettingPanel.Location = new Point(3, 3);
+            SettingPanel.Name = "SettingPanel";
+            SettingPanel.Size = new Size(357, 716);
+            SettingPanel.TabIndex = 0;
+            SettingPanel.Scroll += SettingPanel_Scroll;
+            SettingPanel.VisibleChanged += SettingPanel_VisibleChanged;
+            // 
+            // SettingContentsPanel
+            // 
+            SettingContentsPanel.Controls.Add(SaveAndExitSettingsBtn);
+            SettingContentsPanel.Controls.Add(DarkModeSwitch);
+            SettingContentsPanel.Controls.Add(materialLabel1);
+            SettingContentsPanel.Location = new Point(5, 3);
+            SettingContentsPanel.Name = "SettingContentsPanel";
+            SettingContentsPanel.Size = new Size(352, 1071);
+            SettingContentsPanel.TabIndex = 0;
+            SettingContentsPanel.LocationChanged += panel2_LocationChanged;
+            // 
+            // SaveAndExitSettingsBtn
+            // 
+            SaveAndExitSettingsBtn.AutoSize = false;
+            SaveAndExitSettingsBtn.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            SaveAndExitSettingsBtn.Density = MaterialButton.MaterialButtonDensity.Default;
+            SaveAndExitSettingsBtn.Depth = 0;
+            SaveAndExitSettingsBtn.HighEmphasis = true;
+            SaveAndExitSettingsBtn.Icon = null;
+            SaveAndExitSettingsBtn.IconType = MaterialButton.MaterialIconType.Rebase;
+            SaveAndExitSettingsBtn.Location = new Point(12, 68);
+            SaveAndExitSettingsBtn.Margin = new Padding(4, 6, 4, 6);
+            SaveAndExitSettingsBtn.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.HOVER;
+            SaveAndExitSettingsBtn.Name = "SaveAndExitSettingsBtn";
+            SaveAndExitSettingsBtn.NoAccentTextColor = Color.Empty;
+            SaveAndExitSettingsBtn.Size = new Size(336, 45);
+            SaveAndExitSettingsBtn.TabIndex = 6;
+            SaveAndExitSettingsBtn.Text = "√  Save and exit";
+            SaveAndExitSettingsBtn.Type = MaterialButton.MaterialButtonType.Contained;
+            SaveAndExitSettingsBtn.UseAccentColor = false;
+            SaveAndExitSettingsBtn.UseVisualStyleBackColor = true;
+            SaveAndExitSettingsBtn.Click += SaveAndExitSettingsBtn_Click;
+            // 
+            // DarkModeSwitch
+            // 
+            DarkModeSwitch.AutoSize = true;
+            DarkModeSwitch.Depth = 0;
+            DarkModeSwitch.Location = new Point(12, 127);
+            DarkModeSwitch.Margin = new Padding(0);
+            DarkModeSwitch.MouseLocation = new Point(-1, -1);
+            DarkModeSwitch.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.HOVER;
+            DarkModeSwitch.Name = "DarkModeSwitch";
+            DarkModeSwitch.Ripple = true;
+            DarkModeSwitch.Size = new Size(135, 37);
+            DarkModeSwitch.TabIndex = 4;
+            DarkModeSwitch.Text = "Dark Mode";
+            DarkModeSwitch.UseAccentColor = false;
+            DarkModeSwitch.UseVisualStyleBackColor = true;
+            DarkModeSwitch.CheckedChanged += DarkModeSwitch_CheckedChanged;
+            // 
+            // materialLabel1
+            // 
+            materialLabel1.AutoSize = true;
+            materialLabel1.Depth = 0;
+            materialLabel1.Font = new Font("Roboto", 34F, FontStyle.Bold, GraphicsUnit.Pixel);
+            materialLabel1.FontType = ReaLTaiizor.Manager.MaterialSkinManager.FontType.H4;
+            materialLabel1.Location = new Point(12, 13);
+            materialLabel1.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.HOVER;
+            materialLabel1.Name = "materialLabel1";
+            materialLabel1.Size = new Size(125, 41);
+            materialLabel1.TabIndex = 3;
+            materialLabel1.Text = "Settings";
             // 
             // HyAgentMainWindow
             // 
@@ -719,10 +814,15 @@ namespace ImgHorizon.HyAgent
             Gemini.ResumeLayout(false);
             ChatGPT.ResumeLayout(false);
             Local.ResumeLayout(false);
+            tabPage1.ResumeLayout(false);
             DoneSettingPage.ResumeLayout(false);
             DoneSettingPage.PerformLayout();
             DialogPage.ResumeLayout(false);
-            tabPage1.ResumeLayout(false);
+            DialogPage.PerformLayout();
+            SettingPage.ResumeLayout(false);
+            SettingPanel.ResumeLayout(false);
+            SettingContentsPanel.ResumeLayout(false);
+            SettingContentsPanel.PerformLayout();
             ResumeLayout(false);
         }
         #endregion
@@ -765,5 +865,12 @@ namespace ImgHorizon.HyAgent
         private MaterialFloatingActionButton aiOperationBtn;
         private System.Windows.Forms.TabPage tabPage1;
         private MaterialTextBoxEdit DeepseekApiKeyBox;
+        private System.Windows.Forms.TabPage SettingPage;
+        private System.Windows.Forms.Panel SettingPanel;
+        private System.Windows.Forms.Panel SettingContentsPanel;
+        private MaterialLabel materialLabel1;
+        private MaterialSwitch DarkModeSwitch;
+        private MaterialButton SaveAndExitSettingsBtn;
+        private MaterialScrollBar SettingPageScrollBar;
     }
 }

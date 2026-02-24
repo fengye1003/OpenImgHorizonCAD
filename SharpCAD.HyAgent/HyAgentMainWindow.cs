@@ -1,16 +1,17 @@
-﻿using ReaLTaiizor.Forms;
-using ReaLTaiizor.Manager;
-using ImgHorizon.HyAgent.Essencial_Repos;
-using System.Collections;
-using System.IO;
-using Google.GenAI;
+﻿using Google.GenAI;
 using Google.GenAI.Types;
-using System.Windows.Forms;
-using ReaLTaiizor.Controls;
-using System.ComponentModel;
 using ImgHorizon.HyAgent.AIHelpers;
 using ImgHorizon.HyAgent.AIHelpers.DeepseekApi;
+using ImgHorizon.HyAgent.Essencial_Repos;
+using ReaLTaiizor.Controls;
+using ReaLTaiizor.Forms;
+using ReaLTaiizor.Manager;
+using System.Collections;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
 
 namespace ImgHorizon.HyAgent
 {
@@ -23,7 +24,7 @@ namespace ImgHorizon.HyAgent
             ChatGPT,
             Local
         }
-        
+
         MaterialContextMenuStrip actionMenu = new();
         public bool MainDisposing = false;
 
@@ -77,7 +78,7 @@ namespace ImgHorizon.HyAgent
                         ResizeControls(c3, factor);
                     }
                 }
-                
+
             }
             catch
             {
@@ -104,7 +105,7 @@ namespace ImgHorizon.HyAgent
             switch ((string)Config["apiType"]!)
             {
                 case "deepseek":
-                    ServiceProvider = ServiceProviders.Deepseek; 
+                    ServiceProvider = ServiceProviders.Deepseek;
                     break;
                 case "gemini":
                     ServiceProvider = ServiceProviders.Gemini;
@@ -385,37 +386,65 @@ namespace ImgHorizon.HyAgent
                 default:
                     break;
             }
-            
+
             GenerateButton.ContextMenuStrip = actionMenu;
             actionMenu.Items.Clear();
             ToolStripMenuItem executeLatestInCAD = new();
             executeLatestInCAD.Text = "Execute in AutoCAD";
-            
+
             executeLatestInCAD.Click += (sender, e) =>
             {
                 try
                 {
-                    Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument.SendStringToExecute(latestOutput.Replace("{ESCAPE}","\r\n(command)\r\n").Replace("\r\n"," ").Replace("\n"," "), true, false, true);
+                    Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument.SendStringToExecute(latestOutput.Replace("{ESCAPE}", "\r\n(command)\r\n").Replace("\r\n", " ").Replace("\n", " "), true, false, true);
                     DialogBox.AppendText("\r\n\r\nHyAgent AI: \r\nSuccessfully executed command.\r\n");
                 }
                 catch (Exception ex)
                 {
                     DialogBox.AppendText("\r\n\r\nRuntime Error: \r\n" + ex);
                 }
-                
+
             };
 
-            ToolStripMenuItem openProperties = new();
-            openProperties.Text = "Dev: Open properties";
-            openProperties.Click += (sender, e) =>
+            ToolStripMenuItem openSettingsPage = new();
+            openSettingsPage.Text = "Settings...";
+            openSettingsPage.Click += (sender, e) =>
             {
-                Process.Start("NOTEPAD.exe", PROPERTIES_PATH);
+                PageTabControl.SelectTab(5);
             };
-
 
             actionMenu.Items.Add(executeLatestInCAD);
-            actionMenu.Items.Add(openProperties);
+            actionMenu.Items.Add(openSettingsPage);
+
+            SettingPanel.AutoScroll = false;
+            SettingPageScrollBar.Minimum = 0;
+            SettingPageScrollBar.Maximum = SettingContentsPanel.Height - SettingPanel.Height;
+            SettingPageScrollBar.LargeChange = SettingPanel.Height / 3;
+            int SPanelOriY = SettingPanel.Location.Y;
+            SettingPageScrollBar.ValueChanged += (sender, e) =>
+            {
+                if (!MouseWheeling)
+                {
+                    SettingContentsPanel.Location = new(SettingContentsPanel.Location.X, SPanelOriY - SettingPageScrollBar.Value);
+                }
+            };
+            SettingPanel.MouseWheel += (s, e) =>
+            {
+                MouseWheeling = true;
+                SettingContentsPanel.Location = new(SettingContentsPanel.Location.X, SettingContentsPanel.Location.Y + e.Delta);
+                if (SettingContentsPanel.Location.Y > SPanelOriY)
+                {
+                    SettingContentsPanel.Location = new(SettingContentsPanel.Location.X, SPanelOriY);
+                }
+                else if (SettingContentsPanel.Location.Y < SPanelOriY + SettingPanel.Height - SettingContentsPanel.Height)
+                {
+                    SettingContentsPanel.Location = new(SettingContentsPanel.Location.X, SPanelOriY + SettingPanel.Height - SettingContentsPanel.Height);
+                }
+                SettingPageScrollBar.Value = SPanelOriY - SettingContentsPanel.Location.Y;
+                MouseWheeling = false;
+            };
         }
+        private bool MouseWheeling = false;
 
         private void materialButton1_Click(object sender, EventArgs e)
         {
@@ -443,7 +472,7 @@ namespace ImgHorizon.HyAgent
                 default:
                     break;
             }
-            
+
         }
 
 
@@ -554,7 +583,7 @@ namespace ImgHorizon.HyAgent
             thread.Start();
         }
 
-        
+
         async void DeepseekGenerate(bool Thinking = false)
         {
             Thread thread = new(new ThreadStart(async () =>
@@ -630,7 +659,7 @@ namespace ImgHorizon.HyAgent
                     {
                         DialogBox.AppendText(chunk!.Candidates![0].Content!.Parts![0].Text);
                     }));
-                    
+
                     result += chunk!.Candidates![0].Content!.Parts![0].Text;
                 }
                 result = result.Replace("\n", "\r\n") + "\r\n{ESCAPE}";
@@ -664,7 +693,7 @@ namespace ImgHorizon.HyAgent
 
         private void GenerateItems(object sender, LayoutEventArgs e)
         {
-            
+
         }
 
         protected override void OnLoad(EventArgs e)
@@ -689,9 +718,41 @@ namespace ImgHorizon.HyAgent
                 e.Cancel = true;
                 Hide();
             }
-            
+
             base.OnClosing(e);
 
+        }
+
+        private void DarkModeSwitch_CheckedChanged(object sender, EventArgs e)
+        {
+            if (DarkModeSwitch.Checked)
+            {
+                MaterialSkinManager.Instance.Theme = MaterialSkinManager.Themes.DARK;
+            }
+            else
+            {
+                MaterialSkinManager.Instance.Theme = MaterialSkinManager.Themes.LIGHT;
+            }
+        }
+
+        private void SaveAndExitSettingsBtn_Click(object sender, EventArgs e)
+        {
+            PageTabControl.SelectTab(4);
+        }
+
+        private void SettingPanel_VisibleChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void SettingPanel_Scroll(object sender, ScrollEventArgs e)
+        {
+
+        }
+
+        private void panel2_LocationChanged(object sender, EventArgs e)
+        {
+            Thread.Sleep(100);
         }
     }
 }
