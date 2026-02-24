@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Library</OutputType>
     <UseWPF>True</UseWPF>
 	  <ForceDesignerDpiUnaware>true</ForceDesignerDpiUnaware>
 	  <InformationalVersion>$(Version)-$(SourceRevisionId)</InformationalVersion>

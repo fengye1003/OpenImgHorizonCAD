@@ -26,6 +26,28 @@ namespace ImgHorizon.HyAgent.AIHelpers
 
             [JsonPropertyName("stream")]
             public bool IsStream { get; set; } = false;
+
+            [JsonPropertyName("thinking")]
+            ThinkingOption Thinking { get; set; } = new();
+
+            public bool EnableThinking
+            {
+                get
+                {
+                    return Thinking.Type == "enabled";
+                }
+                set
+                {
+                    if (value)
+                    {
+                        Thinking.Type = "enabled";
+                    }
+                    else
+                    {
+                        Thinking.Type = "disabled";
+                    }
+                }
+            }
         }
 
         public class ChatMessage
@@ -59,6 +81,7 @@ namespace ImgHorizon.HyAgent.AIHelpers
             [JsonPropertyName("usage")]
             public UsageInfo? Usage { get; set; }
         }
+
         public class Choice
         {
             [JsonPropertyName("message")]
@@ -75,6 +98,14 @@ namespace ImgHorizon.HyAgent.AIHelpers
 
             [JsonPropertyName("content")]
             public string Content { get; set; } = "";
+            [JsonPropertyName("reasoning_content")]
+            public string ReasoningContent { get; set; } = "";
+        }
+
+        public class ThinkingOption
+        {
+            [JsonPropertyName("type")]
+            public string Type = "disabled";
         }
 
         public class UsageInfo
@@ -138,6 +169,31 @@ namespace ImgHorizon.HyAgent.AIHelpers
             /// </summary>
             [JsonPropertyName("content")]
             public string Content { get; set; } = string.Empty;
+
+            [JsonPropertyName("reasoning_content")]
+            public string ReasoningContent { get; set; } = string.Empty;
+        }
+
+        public class ProgressReport
+        {
+            public ProgressReport()
+            {
+
+            }
+
+            public ProgressReport(ProgressTypes type, string report)
+            {
+                ProgressType = type;
+                Report = report;
+            }
+
+            public enum ProgressTypes
+            {
+                Reasoning,
+                Chat
+            }
+            public ProgressTypes ProgressType;
+            public string Report = string.Empty;
         }
 
         public class Client
@@ -152,7 +208,7 @@ namespace ImgHorizon.HyAgent.AIHelpers
                 ApiKey = key;
             }
 
-            public async Task<DeepseekResponse> GenerateTextAsync(string SystemInstructions = DEFAULT_SYS_PROMPT, string Prompts = "", string Model = "deepseek-chat")
+            public async Task<DeepseekResponse> GenerateTextAsync(string SystemInstructions = DEFAULT_SYS_PROMPT, string Prompts = "", string Model = "deepseek-chat", bool Thinking = false)
             {
                 using var client = new HttpClient();
                 var request = new HttpRequestMessage(HttpMethod.Post, SupportOpenAI ? DEEPSEEK_API_SUPPORT_OPENAI : DEEPSEEK_API);
@@ -170,6 +226,10 @@ namespace ImgHorizon.HyAgent.AIHelpers
                 RequestJson payload = new();
                 payload.IsStream = false;
                 payload.Model = Model;
+                if (Thinking)
+                {
+                    payload.EnableThinking = true;
+                }
                 payload.Messages = new List<ChatMessage>
                 {
                     new ChatMessage("system", SystemInstructions),
@@ -187,7 +247,7 @@ namespace ImgHorizon.HyAgent.AIHelpers
                 return result!;
             }
 
-            public async Task<string> GenerateTextStreamAsync(IProgress<string> progress, string SystemInstructions = DEFAULT_SYS_PROMPT, string Prompts = "", string Model = "deepseek-chat")
+            public async Task<string> GenerateTextStreamAsync(IProgress<ProgressReport> progress, string SystemInstructions = DEFAULT_SYS_PROMPT, string Prompts = "", string Model = "deepseek-chat", bool Thinking = false)
             {
                 using var client = new HttpClient();
                 var request = new HttpRequestMessage(HttpMethod.Post, SupportOpenAI ? DEEPSEEK_API_SUPPORT_OPENAI : DEEPSEEK_API);
@@ -205,6 +265,10 @@ namespace ImgHorizon.HyAgent.AIHelpers
                 RequestJson payload = new();
                 payload.IsStream = true;
                 payload.Model = Model;
+                if (Thinking)
+                {
+                    payload.EnableThinking = true;
+                }
                 payload.Messages = new List<ChatMessage>
                 {
                     new ChatMessage("system", SystemInstructions),
@@ -220,13 +284,13 @@ namespace ImgHorizon.HyAgent.AIHelpers
                 while (!reader.EndOfStream)
                 {
                     string? line = await reader.ReadLineAsync();
-                    if (!string.IsNullOrWhiteSpace(line))
+                    if (line != null)
                     {
                         // 1. 去掉 SSE 前缀 "data: "
                         if (line.StartsWith("data: "))
                         {
-                            string json = line.Substring(6).Trim();
-
+                            string json = line.Length > 5 ? line.Substring(5).TrimStart() : "";
+                            
                             // 2. 结束标志检查
                             if (json == "[DONE]") break;
 
@@ -234,12 +298,22 @@ namespace ImgHorizon.HyAgent.AIHelpers
                             {
                                 // 3. 解析 delta 片段
                                 var chunk = JsonSerializer.Deserialize<DeepSeekStreamResponse>(json);
+
+                                string? reasoning = chunk?.Choices?[0]?.Delta?.ReasoningContent;
+
+                                if (reasoning != null)
+                                {
+                                    // 通过 Progress 报告给 UI 线程
+                                    progress.Report(new ProgressReport(ProgressReport.ProgressTypes.Reasoning, reasoning));
+                                }
+
                                 string? content = chunk?.Choices?[0]?.Delta?.Content;
 
-                                if (!string.IsNullOrEmpty(content))
+                                if (content != null)
                                 {
+                                    //MessageBox.Show(json);
                                     // 4. 通过 Progress 报告给 UI 线程
-                                    progress.Report(content);
+                                    progress.Report(new ProgressReport(ProgressReport.ProgressTypes.Chat, content));
                                 }
                             }
                             catch { /* 忽略不完整的 JSON 行 */ }
@@ -249,6 +323,30 @@ namespace ImgHorizon.HyAgent.AIHelpers
                 }
 
                 return "result";
+            }
+
+            public string ParseDeepSeekReasoningResponse(DeepseekResponse response)
+            {
+                try
+                {
+                    if (response?.Choices != null && response.Choices.Count > 0)
+                    {
+                        return response.Choices[0].Message.ReasoningContent;
+                    }
+
+                    return "Error: Unable to parse. RAW = " + JsonSerializer.Serialize(response);
+
+                }
+                catch (Exception ex)
+                {
+                    return $"Error: JSON parse error - {ex.Message}\r\nRAW:\r\n" + JsonSerializer.Serialize(response);
+                }
+            }
+            public string ParseDeepSeekReasoningResponse(string jsonRaw)
+            {
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                DeepseekResponse response = JsonSerializer.Deserialize<DeepseekResponse>(jsonRaw, options)!;
+                return ParseDeepSeekReasoningResponse(response!);
             }
 
             public string ParseDeepSeekResponse(DeepseekResponse response)

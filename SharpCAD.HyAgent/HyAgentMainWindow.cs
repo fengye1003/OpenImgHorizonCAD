@@ -10,6 +10,7 @@ using ReaLTaiizor.Controls;
 using System.ComponentModel;
 using ImgHorizon.HyAgent.AIHelpers;
 using ImgHorizon.HyAgent.AIHelpers.DeepseekApi;
+using System.Diagnostics;
 
 namespace ImgHorizon.HyAgent
 {
@@ -364,6 +365,7 @@ namespace ImgHorizon.HyAgent
             }
             PropertiesHelper.Save(PROPERTIES_PATH, Config);
             PageTabControl.SelectTab(4);
+            ApiKey = (string)Config["apiKey"]!;
             InitializeAI();
             Text = RUNNING_TITLE;
         }
@@ -394,6 +396,7 @@ namespace ImgHorizon.HyAgent
             actionMenu.Items.Clear();
             ToolStripMenuItem executeLatestInCAD = new();
             executeLatestInCAD.Text = "Execute in AutoCAD";
+            
             executeLatestInCAD.Click += (sender, e) =>
             {
                 try
@@ -407,7 +410,17 @@ namespace ImgHorizon.HyAgent
                 }
                 
             };
+
+            ToolStripMenuItem openProperties = new();
+            openProperties.Text = "Dev: Open properties";
+            openProperties.Click += (sender, e) =>
+            {
+                Process.Start("NOTEPAD.exe", PROPERTIES_PATH);
+            };
+
+
             actionMenu.Items.Add(executeLatestInCAD);
+            actionMenu.Items.Add(openProperties);
         }
 
         private void materialButton1_Click(object sender, EventArgs e)
@@ -424,7 +437,7 @@ namespace ImgHorizon.HyAgent
             switch (ServiceProvider)
             {
                 case ServiceProviders.Deepseek:
-                    DeepseekGenerateStream();
+                    DeepseekGenerateStream(Thinking: true);
                     break;
                 case ServiceProviders.Gemini:
                     GeminiGenerateStream();
@@ -439,54 +452,139 @@ namespace ImgHorizon.HyAgent
             
         }
 
-        async void DeepseekGenerateStream()
+        async void DeepseekGenerateStream(bool Thinking = false)
         {
-            try
+            Thread thread = new Thread(new ThreadStart(async () =>
             {
-                DialogBox.Text += "\r\n\r\nAI: \r\n";
-                string originDialog = DialogBox.Text;
-                DialogBox.Text += "[Working...]\r\n";
-                string result = "";
-                var progress = new Progress<string>(chunk =>
+                bool chatStage = false;
+                try
                 {
-                    result += chunk;
-                    DialogBox.Text += chunk;
-                    DialogBox.SelectionStart = DialogBox.Text.Length;
-                });
-                Task t = Task.Run(async () =>
-                {
-                    await DeepseekClient!.GenerateTextStreamAsync(progress, SystemInstructions: Prompts, Prompts: PromptBox.Text);
+                    this.Invoke(new Action(() =>
+                    {
+                        DialogBox.Text += "\r\n\r\nAI: \r\n";
+                    }));
+                    string originDialog = DialogBox.Text;
+                    this.Invoke(new Action(() =>
+                    {
+                        DialogBox.Text += "[Working...]\r\n";
+                    }));
+                    if (Thinking)
+                    {
+                        this.Invoke(new Action(() =>
+                        {
+                            DialogBox.Text += "[Deepseek Thinking...]\r\n";
+                        }));
+                    }
+                    string result = "";
+                    string reasoning = "";
+                    var progress = new Progress<ProgressReport>(chunk =>
+                    {
+                        if (chunk.ProgressType == ProgressReport.ProgressTypes.Reasoning)
+                        {
+                            this.Invoke(new Action(() =>
+                            {
+                                DialogBox.Text += chunk.Report;
+                            }));
+                            reasoning += chunk.Report;
+                        }
+                        else
+                        {
+                            if (!chatStage)
+                            {
+                                chatStage = true;
+                                if (Thinking)
+                                {
+                                    this.Invoke(new Action(() =>
+                                    {
+                                        DialogBox.Text += "\r\n[Deepseek Thinking Completed]\r\n";
+                                    }));
+                                }
+                            }
+                            result += chunk.Report;
+                            this.Invoke(new Action(() =>
+                            {
+                                DialogBox.Text += chunk.Report;
+                            }));
+                        }
+                        this.Invoke(new Action(() =>
+                        {
+                            DialogBox.SelectionStart = DialogBox.Text.Length;
+                        }));
+                    });
+                    await DeepseekClient!.GenerateTextStreamAsync(progress, SystemInstructions: Prompts, Prompts: PromptBox.Text, Thinking: Thinking, Model: Thinking ? "deepseek-reasoner" : "deepseek-chat");
                     //MessageBox.Show(PromptBox.Text);
-                });
-                await t;
-                result = result!.Replace("\n", "\r\n") + "\r\n{ESCAPE}";
-                DialogBox.Text = originDialog + result;
-                latestOutput = result;
+                    result = result!.Replace("\n", "\r\n") + "\r\n{ESCAPE}";
+                    if (Thinking)
+                    {
+                        this.Invoke(new Action(() =>
+                        {
+                            DialogBox.Text = originDialog + "[Deepseek Think]\r\n" + reasoning + "\r\n[Deepseek Thinking Completed]\r\n" + result;
+                        }));
+                    }
+                    else
+                    {
+                        this.Invoke(new Action(() =>
+                        {
+                            DialogBox.Text = originDialog + result;
+                        }));
+                    }
+                    latestOutput = result;
 
-                
-            }
-            catch (Exception ex)
-            {
-                DialogBox.Text += "\r\n\r\nAI Error: \r\n" + ex;
-            }
-            CompleteGeneratingSteps();
+
+                }
+                catch (Exception ex)
+                {
+                    this.Invoke(new Action(() =>
+                    {
+                        DialogBox.Text += "\r\n\r\nAI Error: \r\n" + ex;
+                    }));
+                }
+                this.Invoke(new Action(() =>
+                {
+                    CompleteGeneratingSteps();
+                }));
+            }));
+
+            thread.Start();
         }
 
-        async void DeepseekGenerate()
+        
+        async void DeepseekGenerate(bool Thinking = false)
         {
-            try
+            Thread thread = new(new ThreadStart(async () =>
             {
-                Task<DeepseekResponse> t = DeepseekClient!.GenerateTextAsync(SystemInstructions: Prompts, Prompts: PromptBox.Text);
-                string result = DeepseekClient.ParseDeepSeekResponse(await t);
-                result = result!.Replace("\n", "\r\n") + "\r\n{ESCAPE}";
-                DialogBox.Text += "\r\n\r\nAI: \r\n" + result;
-                latestOutput = result;
-            }
-            catch (Exception ex)
-            {
-                DialogBox.Text += "\r\n\r\nAI Error: \r\n" + ex;
-            }
-            CompleteGeneratingSteps();
+                try
+                {
+                    Task<DeepseekResponse> t = DeepseekClient!.GenerateTextAsync(SystemInstructions: Prompts, Prompts: PromptBox.Text, Thinking: Thinking, Model: Thinking ? "deepseek-reasoner" : "deepseek-chat");
+                    if (Thinking)
+                    {
+                        string reasoning = DeepseekClient.ParseDeepSeekReasoningResponse(await t);
+                        this.Invoke(new Action(() =>
+                        {
+                            DialogBox.Text += "\r\n\r\nAI [Reasoning]: \r\n" + reasoning;
+                        }));
+                    }
+                    string result = DeepseekClient.ParseDeepSeekResponse(await t);
+                    result = result!.Replace("\n", "\r\n") + "\r\n{ESCAPE}";
+                    this.Invoke(new Action(() =>
+                    {
+                        DialogBox.Text += "\r\n\r\nAI: \r\n" + result;
+                    }));
+                    latestOutput = result;
+                }
+                catch (Exception ex)
+                {
+                    this.Invoke(new Action(() =>
+                    {
+                        DialogBox.Text += "\r\n\r\nAI Error: \r\n" + ex;
+                    }));
+                }
+                this.Invoke(new Action(() =>
+                {
+                    CompleteGeneratingSteps();
+                }));
+            }));
+            thread.Start();
         }
 
         private async void GeminiGenerate()
