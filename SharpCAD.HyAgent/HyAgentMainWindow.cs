@@ -396,11 +396,11 @@ namespace ImgHorizon.HyAgent
                 try
                 {
                     Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument.SendStringToExecute(latestOutput.Replace("{ESCAPE}","\r\n(command)\r\n").Replace("\r\n"," ").Replace("\n"," "), true, false, true);
-                    DialogBox.Text += "\r\n\r\nHyAgent AI: \r\nSuccessfully executed command.\r\n";
+                    DialogBox.AppendText("\r\n\r\nHyAgent AI: \r\nSuccessfully executed command.\r\n");
                 }
                 catch (Exception ex)
                 {
-                    DialogBox.Text += "\r\n\r\nRuntime Error: \r\n" + ex;
+                    DialogBox.AppendText("\r\n\r\nRuntime Error: \r\n" + ex);
                 }
                 
             };
@@ -420,7 +420,7 @@ namespace ImgHorizon.HyAgent
         private void materialButton1_Click(object sender, EventArgs e)
         {
             GenerateButton.Enabled = false;
-            DialogBox.Text += "\r\n\r\nYou: \r\n" + PromptBox.Text;
+            DialogBox.AppendText("\r\n\r\nYou: \r\n" + PromptBox.Text);
             Generate();
             //DialogBox.Text += "\r\nCiallo!";
 
@@ -461,18 +461,18 @@ namespace ImgHorizon.HyAgent
                 {
                     this.Invoke(new Action(() =>
                     {
-                        DialogBox.Text += "\r\n\r\nAI: \r\n";
+                        DialogBox.AppendText("\r\n\r\nAI: \r\n");
                     }));
                     string originDialog = DialogBox.Text;
                     this.Invoke(new Action(() =>
                     {
-                        DialogBox.Text += "[Working...]\r\n";
+                        DialogBox.AppendText("[Working...]\r\n");
                     }));
                     if (Thinking)
                     {
                         this.Invoke(new Action(() =>
                         {
-                            DialogBox.Text += "[Deepseek Thinking...]\r\n";
+                            DialogBox.AppendText("[Deepseek Thinking...]\r\n");
                         }));
                     }
                     string result = "";
@@ -542,7 +542,7 @@ namespace ImgHorizon.HyAgent
                 {
                     this.Invoke(new Action(() =>
                     {
-                        DialogBox.Text += "\r\n\r\nAI Error: \r\n" + ex;
+                        DialogBox.AppendText("\r\n\r\nAI Error: \r\n" + ex);
                     }));
                 }
                 this.Invoke(new Action(() =>
@@ -567,14 +567,14 @@ namespace ImgHorizon.HyAgent
                         string reasoning = DeepseekClient.ParseDeepSeekReasoningResponse(await t);
                         this.Invoke(new Action(() =>
                         {
-                            DialogBox.Text += "\r\n\r\nAI [Reasoning]: \r\n" + reasoning;
+                            DialogBox.AppendText("\r\n\r\nAI [Reasoning]: \r\n" + reasoning);
                         }));
                     }
                     string result = DeepseekClient.ParseDeepSeekResponse(await t);
                     result = result!.Replace("\n", "\r\n") + "\r\n{ESCAPE}";
                     this.Invoke(new Action(() =>
                     {
-                        DialogBox.Text += "\r\n\r\nAI: \r\n" + result;
+                        DialogBox.AppendText("\r\n\r\nAI: \r\n" + result);
                     }));
                     latestOutput = result;
                 }
@@ -582,7 +582,7 @@ namespace ImgHorizon.HyAgent
                 {
                     this.Invoke(new Action(() =>
                     {
-                        DialogBox.Text += "\r\n\r\nAI Error: \r\n" + ex;
+                        DialogBox.AppendText("\r\n\r\nAI Error: \r\n" + ex);
                     }));
                 }
                 this.Invoke(new Action(() =>
@@ -602,12 +602,12 @@ namespace ImgHorizon.HyAgent
             );
                 var response = await t;
                 string result = response.Candidates![0].Content!.Parts![0].Text!.Replace("\n", "\r\n") + "\r\n{ESCAPE}";
-                DialogBox.Text += "\r\n\r\nAI: \r\n" + result;
+                DialogBox.AppendText("\r\n\r\nAI: \r\n" + result);
                 latestOutput = result;
             }
             catch (Exception ex)
             {
-                DialogBox.Text += "\r\n\r\nAI Error: \r\n" + ex;
+                DialogBox.AppendText("\r\n\r\nAI Error: \r\n" + ex);
             }
             CompleteGeneratingSteps();
         }
@@ -617,10 +617,10 @@ namespace ImgHorizon.HyAgent
             try
             {
 
-                DialogBox.Text += "\r\n\r\nAI: \r\n";
+                DialogBox.AppendText("\r\n\r\nAI: \r\n");
                 string originDialog = DialogBox.Text;
                 string result = "";
-                DialogBox.Text += "[Working...]\r\n";
+                DialogBox.AppendText("[Working...]\r\n");
                 await foreach (var chunk in GeminiClient!.Models.GenerateContentStreamAsync(
                     model: "gemini-2.5-flash",
                     contents: Prompts + PromptBox.Text
@@ -640,7 +640,7 @@ namespace ImgHorizon.HyAgent
             }
             catch (Exception ex)
             {
-                DialogBox.Text += "\r\n\r\nAI Error: \r\n" + ex;
+                DialogBox.AppendText("\r\n\r\nAI Error: \r\n" + ex);
             }
             CompleteGeneratingSteps();
 
@@ -670,7 +670,7 @@ namespace ImgHorizon.HyAgent
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            DialogBox.Text += $"\r\n\r\nVersion: {Program.Version}\r\n";
+            DialogBox.AppendText($"\r\n\r\nVersion: {Program.Version}\r\n");
             WindowScalingHelper helper = new();
             float factor = helper.GetDeviceScaleFactor(GoToChatBtn);
             Width = (int)(Width * factor);
