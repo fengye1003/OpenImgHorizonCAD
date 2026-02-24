@@ -451,110 +451,79 @@ namespace ImgHorizon.HyAgent
         public List<ProgressReport> DsOutputQueue = new();
         async void DeepseekGenerateStream(bool Thinking = false)
         {
-            Thread thread = new Thread(new ThreadStart(async () =>
+            bool chatStage = false;
+
+            try
             {
-                int readIndex = 0;
-                bool chatStage = false;
-                try
-                {
-                    this.Invoke(new Action(() =>
+                DialogBox.AppendText("\r\n\r\nAI: \r\n");
+                string originDialog = DialogBox.Text;
+
+                DialogBox.AppendText("[Working...]\r\n");
+
+                if (Thinking)
+                    DialogBox.AppendText("[Deepseek Thinking...]\r\n");
+
+                string result = "";
+                string reasoning = "";
+
+                await DeepseekClient!.GenerateTextStreamAsync(
+                    async chunk =>
                     {
-                        DialogBox.Text += "\r\n\r\nAI: \r\n";
-                    }));
-                    string originDialog = DialogBox.Text;
-                    this.Invoke(new Action(() =>
-                    {
-                        DialogBox.Text += "[Working...]\r\n";
-                    }));
-                    if (Thinking)
-                    {
-                        this.Invoke(new Action(() =>
+                        // 此处保证严格顺序执行
+                        if (chunk.ProgressType == ProgressReport.ProgressTypes.Reasoning)
                         {
-                            DialogBox.Text += "[Deepseek Thinking...]\r\n";
-                        }));
-                    }
-                    string result = "";
-                    string reasoning = "";
-                    // 在类级别定义一个简单的锁对象（如果你是在方法内定义 progress，也可以定义在方法内）
-                    object _syncLock = new object();
-
-                    var progress = new Progress<bool>(chunk =>
-                    {
-                        DsRefreshingUI = true;
-                        // 关键点：使用 lock 确保后台线程在产生 Report 指令时是串行的
-                        lock (_syncLock)
-                        {
-                            // 必须使用同步 Invoke，它会阻塞当前后台线程直到 UI 处理完毕
-                            // 这样可以物理上强制下一个 chunk 必须等这一个画完才能进来
-                            this.Invoke(new Action(() =>
-                            {
-                                if (DsOutputQueue[readIndex].ProgressType == ProgressReport.ProgressTypes.Reasoning)
-                                {
-                                    // 先更新内存数据，再更新 UI，保证一致性
-                                    reasoning += DsOutputQueue[readIndex].Report;
-                                    DialogBox.AppendText(DsOutputQueue[readIndex].Report);
-                                }
-                                else
-                                {
-                                    // 状态机切换逻辑
-                                    if (!chatStage)
-                                    {
-                                        chatStage = true;
-                                        if (Thinking)
-                                        {
-                                            DialogBox.AppendText("\r\n[Deepseek Thinking Completed]\r\n");
-                                        }
-                                    }
-
-                                    // 更新内存数据
-                                    result += DsOutputQueue[readIndex].Report;
-                                    // 更新 UI
-                                    DialogBox.AppendText(DsOutputQueue[readIndex].Report);
-                                }
-
-                            }));
+                            reasoning += chunk.Report;
+                            DialogBox.AppendText(chunk.Report);
                         }
-                        DsRefreshingUI = false;
-                        readIndex += 1;
-                    });
-                    await DeepseekClient!.GenerateTextStreamAsync(this, progress, SystemInstructions: Prompts, Prompts: PromptBox.Text, Thinking: Thinking, Model: Thinking ? "deepseek-reasoner" : "deepseek-chat");
-                    //MessageBox.Show(PromptBox.Text);
-                    result = result!.Replace("\n", "\r\n") + "\r\n{ESCAPE}";
-                    if (Thinking)
-                    {
-                        this.Invoke(new Action(() =>
+                        else
                         {
-                            DialogBox.Text = originDialog + "[Deepseek Think]\r\n" + reasoning + "\r\n[Deepseek Thinking Completed]\r\n" + result;
-                        }));
-                    }
-                    else
-                    {
-                        this.Invoke(new Action(() =>
-                        {
-                            DialogBox.Text = originDialog + result;
-                        }));
-                    }
-                    latestOutput = result;
+                            if (!chatStage)
+                            {
+                                chatStage = true;
+                                if (Thinking)
+                                    DialogBox.AppendText("\r\n[Deepseek Thinking Completed]\r\n");
+                            }
 
+                            result += chunk.Report;
+                            DialogBox.AppendText(chunk.Report);
+                        }
 
-                }
-                catch (Exception ex)
+                        // 让 UI 有机会刷新（避免大文本卡顿）
+                        await Task.Yield();
+                    },
+                    SystemInstructions: Prompts,
+                    Prompts: PromptBox.Text,
+                    Thinking: Thinking,
+                    Model: Thinking ? "deepseek-reasoner" : "deepseek-chat"
+                );
+
+                result = result.Replace("\n", "\r\n") + "\r\n{ESCAPE}";
+
+                if (Thinking)
                 {
-                    this.Invoke(new Action(() =>
-                    {
-                        DialogBox.Text += "\r\n\r\nAI Error: \r\n" + ex;
-                    }));
+                    DialogBox.Text =
+                        originDialog +
+                        "[Deepseek Think]\r\n" +
+                        reasoning +
+                        "\r\n[Deepseek Thinking Completed]\r\n" +
+                        result;
                 }
-                this.Invoke(new Action(() =>
+                else
                 {
-                    CompleteGeneratingSteps();
-                }));
-            }));
+                    DialogBox.Text = originDialog + result;
+                }
 
-            thread.Start();
+                latestOutput = result;
+            }
+            catch (Exception ex)
+            {
+                DialogBox.AppendText("\r\n\r\nAI Error: \r\n" + ex);
+            }
+
+            CompleteGeneratingSteps();
         }
 
-        
+
         async void DeepseekGenerate(bool Thinking = false)
         {
             Thread thread = new(new ThreadStart(async () =>
