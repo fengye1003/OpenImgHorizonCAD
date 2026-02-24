@@ -247,7 +247,7 @@ namespace ImgHorizon.HyAgent.AIHelpers
                 return result!;
             }
 
-            public async Task<string> GenerateTextStreamAsync(IProgress<ProgressReport> progress, string SystemInstructions = DEFAULT_SYS_PROMPT, string Prompts = "", string Model = "deepseek-chat", bool Thinking = false)
+            public async Task<string> GenerateTextStreamAsync(HyAgentMainWindow ui, IProgress<bool> progress, string SystemInstructions = DEFAULT_SYS_PROMPT, string Prompts = "", string Model = "deepseek-chat", bool Thinking = false)
             {
                 using var client = new HttpClient();
                 var request = new HttpRequestMessage(HttpMethod.Post, SupportOpenAI ? DEEPSEEK_API_SUPPORT_OPENAI : DEEPSEEK_API);
@@ -303,17 +303,27 @@ namespace ImgHorizon.HyAgent.AIHelpers
 
                                 if (reasoning != null)
                                 {
+                                    ui.DsOutputQueue.Add(new ProgressReport(ProgressReport.ProgressTypes.Reasoning, reasoning));
                                     // 通过 Progress 报告给 UI 线程
-                                    progress.Report(new ProgressReport(ProgressReport.ProgressTypes.Reasoning, reasoning));
+                                    while (ui.DsRefreshingUI)
+                                    {
+                                        Thread.Sleep(1);
+                                    }
+                                    progress.Report(true);
                                 }
 
                                 string? content = chunk?.Choices?[0]?.Delta?.Content;
 
                                 if (content != null)
                                 {
+                                    ui.DsOutputQueue.Add(new ProgressReport(ProgressReport.ProgressTypes.Chat, content));
                                     //MessageBox.Show(json);
                                     // 4. 通过 Progress 报告给 UI 线程
-                                    progress.Report(new ProgressReport(ProgressReport.ProgressTypes.Chat, content));
+                                    while (ui.DsRefreshingUI)
+                                    {
+                                        Thread.Sleep(1);
+                                    }
+                                    progress.Report(true);
                                 }
                             }
                             catch { /* 忽略不完整的 JSON 行 */ }

@@ -14,7 +14,7 @@ using System.Diagnostics;
 
 namespace ImgHorizon.HyAgent
 {
-    partial class HyAgentMainWindow : MaterialForm
+    public partial class HyAgentMainWindow : MaterialForm
     {
         enum ServiceProviders
         {
@@ -89,12 +89,6 @@ namespace ImgHorizon.HyAgent
         {
             MaterialSkinManager.Instance.AddFormToManage(this);
             InitializeComponent();
-
-            DialogBox.TextChanged += (sender, e) =>
-            {
-                DialogBox.SelectionStart = DialogBox.Text.Length;
-                DialogBox.ScrollToCaret();
-            };
 
             Directory.CreateDirectory("./.imgHorizon/Properties/");
             Config = PropertiesHelper.AutoCheck(ConfigStandard, PROPERTIES_PATH);
@@ -452,10 +446,14 @@ namespace ImgHorizon.HyAgent
             
         }
 
+
+        public bool DsRefreshingUI = false;
+        public List<ProgressReport> DsOutputQueue = new();
         async void DeepseekGenerateStream(bool Thinking = false)
         {
             Thread thread = new Thread(new ThreadStart(async () =>
             {
+                int readIndex = 0;
                 bool chatStage = false;
                 try
                 {
@@ -477,41 +475,49 @@ namespace ImgHorizon.HyAgent
                     }
                     string result = "";
                     string reasoning = "";
-                    var progress = new Progress<ProgressReport>(chunk =>
+                    // 在类级别定义一个简单的锁对象（如果你是在方法内定义 progress，也可以定义在方法内）
+                    object _syncLock = new object();
+
+                    var progress = new Progress<bool>(chunk =>
                     {
-                        if (chunk.ProgressType == ProgressReport.ProgressTypes.Reasoning)
+                        DsRefreshingUI = true;
+                        // 关键点：使用 lock 确保后台线程在产生 Report 指令时是串行的
+                        lock (_syncLock)
                         {
+                            // 必须使用同步 Invoke，它会阻塞当前后台线程直到 UI 处理完毕
+                            // 这样可以物理上强制下一个 chunk 必须等这一个画完才能进来
                             this.Invoke(new Action(() =>
                             {
-                                DialogBox.Text += chunk.Report;
-                            }));
-                            reasoning += chunk.Report;
-                        }
-                        else
-                        {
-                            if (!chatStage)
-                            {
-                                chatStage = true;
-                                if (Thinking)
+                                if (DsOutputQueue[readIndex].ProgressType == ProgressReport.ProgressTypes.Reasoning)
                                 {
-                                    this.Invoke(new Action(() =>
-                                    {
-                                        DialogBox.Text += "\r\n[Deepseek Thinking Completed]\r\n";
-                                    }));
+                                    // 先更新内存数据，再更新 UI，保证一致性
+                                    reasoning += DsOutputQueue[readIndex].Report;
+                                    DialogBox.AppendText(DsOutputQueue[readIndex].Report);
                                 }
-                            }
-                            result += chunk.Report;
-                            this.Invoke(new Action(() =>
-                            {
-                                DialogBox.Text += chunk.Report;
+                                else
+                                {
+                                    // 状态机切换逻辑
+                                    if (!chatStage)
+                                    {
+                                        chatStage = true;
+                                        if (Thinking)
+                                        {
+                                            DialogBox.AppendText("\r\n[Deepseek Thinking Completed]\r\n");
+                                        }
+                                    }
+
+                                    // 更新内存数据
+                                    result += DsOutputQueue[readIndex].Report;
+                                    // 更新 UI
+                                    DialogBox.AppendText(DsOutputQueue[readIndex].Report);
+                                }
+
                             }));
                         }
-                        this.Invoke(new Action(() =>
-                        {
-                            DialogBox.SelectionStart = DialogBox.Text.Length;
-                        }));
+                        DsRefreshingUI = false;
+                        readIndex += 1;
                     });
-                    await DeepseekClient!.GenerateTextStreamAsync(progress, SystemInstructions: Prompts, Prompts: PromptBox.Text, Thinking: Thinking, Model: Thinking ? "deepseek-reasoner" : "deepseek-chat");
+                    await DeepseekClient!.GenerateTextStreamAsync(this, progress, SystemInstructions: Prompts, Prompts: PromptBox.Text, Thinking: Thinking, Model: Thinking ? "deepseek-reasoner" : "deepseek-chat");
                     //MessageBox.Show(PromptBox.Text);
                     result = result!.Replace("\n", "\r\n") + "\r\n{ESCAPE}";
                     if (Thinking)
@@ -622,7 +628,7 @@ namespace ImgHorizon.HyAgent
                 {
                     this.Invoke(new Action(() =>
                     {
-                        DialogBox.Text += chunk!.Candidates![0].Content!.Parts![0].Text;
+                        DialogBox.AppendText(chunk!.Candidates![0].Content!.Parts![0].Text);
                     }));
                     
                     result += chunk!.Candidates![0].Content!.Parts![0].Text;
