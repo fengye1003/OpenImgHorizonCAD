@@ -477,8 +477,17 @@ namespace ImgHorizon.HyAgent
                 PageTabControl.SelectTab(5);
             };
 
+            ToolStripMenuItem exitApp = new();
+            exitApp.Text = "Stop Process and Exit";
+            exitApp.Click += (sender, e) =>
+            {
+                this.MainDisposing = true;
+                this.Close();
+            };
+
             actionMenu.Items.Add(executeLatestInCAD);
             actionMenu.Items.Add(openSettingsPage);
+            actionMenu.Items.Add(exitApp);
 
             SettingPanel.AutoScroll = false;
             SettingPageScrollBar.Minimum = 0;
@@ -763,6 +772,10 @@ namespace ImgHorizon.HyAgent
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
+            DialogBox.AppendText($"\r\n\r\nImgHorizonCAD HyAgent\r\n"); 
+            DialogBox.AppendText($"By HYrecovery\r\n");
+            DialogBox.AppendText($"A \"teko.IO SisTemS!\" Studio Project\r\n");
+            DialogBox.AppendText($"View https://eachother.work/ or https://github.com/fengye1003/OpenImgHorizenCAD for further information.\r\n");
             DialogBox.AppendText($"\r\n\r\nVersion: {Program.Version}\r\n");
             WindowScalingHelper helper = new();
             float factor = helper.GetDeviceScaleFactor(GoToChatBtn);
