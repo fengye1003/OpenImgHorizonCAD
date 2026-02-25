@@ -1,6 +1,7 @@
 # ImgHorizon CAD
 ### 🚀 Project Overview
 ImgHorizon CAD (幻域 · CAD) is an AutoCAD plugin library developed using .NET. This library is developed and maintained by HYrecovery from teko.IO SisTemS! and Nanjing Tech University (NJUT/NJTECH). It is positioned as an open-source collection of CAD plugins that integrate modern features, helping architecture students use CAD more efficiently and learn it more easily. This project is also a part of the "COArCHitecture" Innovation and Entrepreneurship Project for architecture students.
+Languages: <a href="./README.zh_CN.md">简体中文</a>
 
 ### ✔️ Core Features
 The project is currently in the initial stage of feature development. It has implemented an AI Agent that can be invoked and used directly within AutoCAD, with the ability to send commands to the CAD console with one click to perform various operations.
