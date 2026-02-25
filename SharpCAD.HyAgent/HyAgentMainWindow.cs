@@ -38,6 +38,10 @@ namespace ImgHorizon.HyAgent
         const string PROPERTIES_PATH = "./.imgHorizon/Properties/main.properties";
         const string RUNNING_TITLE = "HyAgent AI";
         string latestOutput = "";
+        string geminiKey = "unknown";
+        string deepseekKey = "unknown";
+        bool deepseekThinking = true;
+        bool streaming = true;
         bool darkMode = false;
 
 
@@ -67,7 +71,9 @@ namespace ImgHorizon.HyAgent
             { "type", "HyAgent.MainConfig" },
             { "skipWelcomeOnBoot", "false" },
             { "darkMode", "false" },
-            { "theme", "oceanic" }
+            { "theme", "oceanic" },
+            { "deepseek.Thinking", "true" },
+            { "streaming", "true" }
         };
 
         void ResizeControls(Control item, float factor)
@@ -142,7 +148,12 @@ namespace ImgHorizon.HyAgent
                     Initialized = false;
                     return;
             }
+
             ApiKey = (string)Config["apiKey"]!;
+            deepseekKey = (string)Config["deepseekKey"]!;
+            geminiKey = (string)Config["geminiKey"]!;
+
+
             if (Initialized && (string)Config["skipWelcomeOnBoot"]! == "true")
             {
                 PageTabControl.SelectTab(4);
@@ -191,6 +202,39 @@ namespace ImgHorizon.HyAgent
                     break;
             }
             UpdateColors();
+
+            SettingDsApiKeyBox.Text = (string)Config["deepseekKey"]!;
+            SettingGeminiApiKeyBox.Text = (string)Config["geminiKey"]!;
+            SettingShowWelcomeOnBootBox.Checked = (string)Config["skipWelcomeOnBoot"]! != "true";
+
+            switch ((string)Config["apiType"]!)
+            {
+                case "deepseek":
+                    SettingServiceProviderBox.SelectedItem = "Deepseek - 深度求索";
+                    SettingAPIKeyTabs.SelectTab(4);
+                    break;
+                case "gemini":
+                    SettingServiceProviderBox.SelectedItem = "Google Gemini";
+                    SettingAPIKeyTabs.SelectTab(1);
+                    break;
+                case "chatgpt":
+                    SettingServiceProviderBox.SelectedItem = "OpenAI ChatGPT";
+                    SettingAPIKeyTabs.SelectTab(2);
+                    break;
+                case "local":
+                    SettingServiceProviderBox.SelectedItem = "Local Service";
+                    SettingAPIKeyTabs.SelectTab(3);
+                    break;
+                default:
+                    Initialized = false;
+                    return;
+            }
+
+            SettingEnableThinkingSwitch.Checked = (string)Config["deepseek.Thinking"]! == "true";
+            SettingEnableStreamingSwitch.Checked = (string)Config["streaming"]! == "true";
+            deepseekThinking = (string)Config["deepseek.Thinking"]! == "true";
+            streaming = (string)Config["streaming"]! == "true";
+
         }
 
         private void HyAgentMainWindow_Load(object sender, EventArgs e)
@@ -533,10 +577,16 @@ namespace ImgHorizon.HyAgent
             switch (ServiceProvider)
             {
                 case ServiceProviders.Deepseek:
-                    DeepseekGenerateStream(Thinking: true);
+                    if (streaming)
+                        DeepseekGenerateStream(Thinking: deepseekThinking);
+                    else
+                        DeepseekGenerate(Thinking: deepseekThinking);
                     break;
                 case ServiceProviders.Gemini:
-                    GeminiGenerateStream();
+                    if (streaming)
+                        GeminiGenerateStream();
+                    else
+                        GeminiGenerate();
                     break;
                 case ServiceProviders.ChatGPT:
                     break;
@@ -553,6 +603,10 @@ namespace ImgHorizon.HyAgent
         public List<ProgressReport> DsOutputQueue = new();
         async void DeepseekGenerateStream(bool Thinking = false)
         {
+            if (DeepseekClient == null)
+            {
+                DeepseekClient = new(ApiKey);
+            }
             DsOutputQueue = new();
 
             Thread thread = new Thread(new ThreadStart(async () =>
@@ -659,6 +713,10 @@ namespace ImgHorizon.HyAgent
 
         async void DeepseekGenerate(bool Thinking = false)
         {
+            if (DeepseekClient == null)
+            {
+                DeepseekClient = new(ApiKey);
+            }
             Thread thread = new(new ThreadStart(async () =>
             {
                 try
@@ -697,6 +755,10 @@ namespace ImgHorizon.HyAgent
 
         private async void GeminiGenerate()
         {
+            if (GeminiClient == null)
+            {
+                GeminiClient = new(apiKey: ApiKey);
+            }
             try
             {
                 Task<GenerateContentResponse> t = GeminiClient!.Models.GenerateContentAsync(
@@ -716,6 +778,10 @@ namespace ImgHorizon.HyAgent
 
         async void GeminiGenerateStream()
         {
+            if (GeminiClient == null)
+            {
+                GeminiClient = new(apiKey: ApiKey);
+            }
             try
             {
 
@@ -772,7 +838,7 @@ namespace ImgHorizon.HyAgent
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            DialogBox.AppendText($"\r\n\r\nImgHorizonCAD HyAgent\r\n"); 
+            DialogBox.AppendText($"\r\n\r\nImgHorizonCAD HyAgent\r\n");
             DialogBox.AppendText($"By HYrecovery\r\n");
             DialogBox.AppendText($"A \"teko.IO SisTemS!\" Studio Project\r\n");
             DialogBox.AppendText($"View https://eachother.work/ or https://github.com/fengye1003/OpenImgHorizenCAD for further information.\r\n");
@@ -846,6 +912,32 @@ namespace ImgHorizon.HyAgent
                     Config["theme"] = "oceanic";
                     break;
             }
+            deepseekKey = SettingDsApiKeyBox.Text;
+            geminiKey = SettingGeminiApiKeyBox.Text;
+            Config["deepseekKey"] = deepseekKey;
+            Config["geminiKey"] = geminiKey;
+
+            switch (SettingServiceProviderBox.Text)
+            {
+                case "Google Gemini":
+                    Config["apiKey"] = geminiKey;
+                    break;
+                case "OpenAI ChatGPT":
+                    break;
+                case "Local Service":
+                    break;
+                case "Deepseek - 深度求索":
+                    Config["apiKey"] = deepseekKey;
+                    break;
+                default:
+                    break;
+            }
+
+            Config["skipWelcomeOnBoot"] = !SettingShowWelcomeOnBootBox.Checked ? "true" : "false";
+            Config["deepseek.Thinking"] = SettingEnableThinkingSwitch.Checked ? "true" : "false";
+            Config["streaming"] = SettingEnableStreamingSwitch.Checked ? "true" : "false";
+            deepseekThinking = SettingEnableThinkingSwitch.Checked;
+            streaming = SettingEnableStreamingSwitch.Checked;
 
             PropertiesHelper.Save(PROPERTIES_PATH, Config);
         }
@@ -950,6 +1042,64 @@ namespace ImgHorizon.HyAgent
                     break;
             }
             UpdateColors();
+        }
+
+        private void SettingServiceProviderBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            switch (SettingServiceProviderBox.Text)
+            {
+                case "Google Gemini":
+                    SettingAPIKeyTabs.SelectedIndex = 1;
+                    SaveAndExitSettingsBtn.Enabled = true;
+                    ApiKey = geminiKey;
+                    Config["apiKey"] = geminiKey;
+                    ServiceProvider = ServiceProviders.Gemini;
+                    Config["apiType"] = "gemini";
+                    break;
+                case "OpenAI ChatGPT":
+                    SettingAPIKeyTabs.SelectedIndex = 2;
+                    SaveAndExitSettingsBtn.Enabled = false;
+                    ServiceProvider = ServiceProviders.ChatGPT;
+                    Config["apiType"] = "chatgpt";
+                    break;
+                case "Local Service":
+                    SettingAPIKeyTabs.SelectedIndex = 3;
+                    SaveAndExitSettingsBtn.Enabled = false;
+                    ServiceProvider = ServiceProviders.Local;
+                    Config["apiType"] = "local";
+                    break;
+                case "Deepseek - 深度求索":
+                    SettingAPIKeyTabs.SelectedIndex = 4;
+                    SaveAndExitSettingsBtn.Enabled = true;
+                    ApiKey = deepseekKey;
+                    ServiceProvider = ServiceProviders.Deepseek;
+                    Config["apiKey"] = deepseekKey;
+                    Config["apiType"] = "deepseek";
+                    break;
+                default:
+                    SettingAPIKeyTabs.SelectedIndex = 0;
+                    SaveAndExitSettingsBtn.Enabled = false;
+                    break;
+            }
+        }
+
+        private void SettingAboutBtn_Click_2(object sender, EventArgs e)
+        {
+            MaterialMessageBox.Show("ImgHorizonCAD HyAgent\r\n" +
+                $"\r\n\r\nVersion: {Program.Version}\r\n" +
+                "By HYrecovery @ teko.IO SisTemS! & NJUT/NJTECH\r\n" +
+                "A \"teko.IO SisTemS!\" Studio Project\r\n" +
+                "View https://eachother.work/ or https://github.com/fengye1003/OpenImgHorizenCAD " +
+                "for further information.\r\n" +
+                "By using this program, you do agree all released EULA " +
+                "and you will use it under released OpenSource protocol. " +
+                "For more information, view project's GitHub page or website.\r\n" +
+                "All kinds of contributions are welcomed.\r\n" +
+                "This project is for studying and researching new technologies and it may not perfect. " +
+                "If there's anything against owners' rights, contact us and we will deal with it ASAP.\r\n\r\n" +
+                "相互科技工作室 2026 构思 & 打造 with <3.\r\n" +
+                "“在浪轻柔地拍到那恰好的礁石之前❤️‍" +
+                "\r\n我就做那自由的风🎐”", "About ImgHorizonCAD HyAgent", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }

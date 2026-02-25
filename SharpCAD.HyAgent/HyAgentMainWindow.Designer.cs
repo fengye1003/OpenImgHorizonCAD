@@ -77,6 +77,25 @@ namespace ImgHorizon.HyAgent
             SettingPageScrollBar = new MaterialScrollBar();
             SettingPanel = new System.Windows.Forms.Panel();
             SettingContentsPanel = new System.Windows.Forms.Panel();
+            SettingEnableStreamingSwitch = new MaterialSwitch();
+            SettingShowWelcomeOnBootBox = new MaterialSwitch();
+            SettingAboutBtn = new MaterialButton();
+            materialLabel6 = new MaterialLabel();
+            SettingAPIKeyTabs = new MaterialTabControl();
+            tabPage2 = new System.Windows.Forms.TabPage();
+            materialLabel9 = new MaterialLabel();
+            tabPage3 = new System.Windows.Forms.TabPage();
+            SettingGeminiApiKeyBox = new MaterialTextBoxEdit();
+            tabPage4 = new System.Windows.Forms.TabPage();
+            materialLabel7 = new MaterialLabel();
+            tabPage5 = new System.Windows.Forms.TabPage();
+            materialLabel8 = new MaterialLabel();
+            tabPage6 = new System.Windows.Forms.TabPage();
+            SettingEnableThinkingSwitch = new MaterialSwitch();
+            SettingDsApiKeyBox = new MaterialTextBoxEdit();
+            SettingServiceProviderBox = new MaterialComboBox();
+            materialLabel5 = new MaterialLabel();
+            materialLabel4 = new MaterialLabel();
             ThemeSelectBox = new MaterialComboBox();
             SaveAndExitSettingsBtn = new MaterialButton();
             DarkModeSwitch = new MaterialSwitch();
@@ -96,6 +115,12 @@ namespace ImgHorizon.HyAgent
             SettingPage.SuspendLayout();
             SettingPanel.SuspendLayout();
             SettingContentsPanel.SuspendLayout();
+            SettingAPIKeyTabs.SuspendLayout();
+            tabPage2.SuspendLayout();
+            tabPage3.SuspendLayout();
+            tabPage4.SuspendLayout();
+            tabPage5.SuspendLayout();
+            tabPage6.SuspendLayout();
             SuspendLayout();
             // 
             // TitleLabel
@@ -736,6 +761,14 @@ namespace ImgHorizon.HyAgent
             // 
             // SettingContentsPanel
             // 
+            SettingContentsPanel.Controls.Add(SettingEnableStreamingSwitch);
+            SettingContentsPanel.Controls.Add(SettingShowWelcomeOnBootBox);
+            SettingContentsPanel.Controls.Add(SettingAboutBtn);
+            SettingContentsPanel.Controls.Add(materialLabel6);
+            SettingContentsPanel.Controls.Add(SettingAPIKeyTabs);
+            SettingContentsPanel.Controls.Add(SettingServiceProviderBox);
+            SettingContentsPanel.Controls.Add(materialLabel5);
+            SettingContentsPanel.Controls.Add(materialLabel4);
             SettingContentsPanel.Controls.Add(ThemeSelectBox);
             SettingContentsPanel.Controls.Add(SaveAndExitSettingsBtn);
             SettingContentsPanel.Controls.Add(DarkModeSwitch);
@@ -745,6 +778,307 @@ namespace ImgHorizon.HyAgent
             SettingContentsPanel.Size = new Size(352, 1071);
             SettingContentsPanel.TabIndex = 0;
             SettingContentsPanel.LocationChanged += panel2_LocationChanged;
+            // 
+            // SettingEnableStreamingSwitch
+            // 
+            SettingEnableStreamingSwitch.AutoSize = true;
+            SettingEnableStreamingSwitch.Depth = 0;
+            SettingEnableStreamingSwitch.Location = new Point(16, 524);
+            SettingEnableStreamingSwitch.Margin = new Padding(0);
+            SettingEnableStreamingSwitch.MouseLocation = new Point(-1, -1);
+            SettingEnableStreamingSwitch.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.HOVER;
+            SettingEnableStreamingSwitch.Name = "SettingEnableStreamingSwitch";
+            SettingEnableStreamingSwitch.Ripple = true;
+            SettingEnableStreamingSwitch.Size = new Size(256, 37);
+            SettingEnableStreamingSwitch.TabIndex = 15;
+            SettingEnableStreamingSwitch.Text = "Enable Streaming Response";
+            SettingEnableStreamingSwitch.UseAccentColor = false;
+            SettingEnableStreamingSwitch.UseVisualStyleBackColor = true;
+            // 
+            // SettingShowWelcomeOnBootBox
+            // 
+            SettingShowWelcomeOnBootBox.AutoSize = true;
+            SettingShowWelcomeOnBootBox.Depth = 0;
+            SettingShowWelcomeOnBootBox.Location = new Point(12, 254);
+            SettingShowWelcomeOnBootBox.Margin = new Padding(0);
+            SettingShowWelcomeOnBootBox.MouseLocation = new Point(-1, -1);
+            SettingShowWelcomeOnBootBox.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.HOVER;
+            SettingShowWelcomeOnBootBox.Name = "SettingShowWelcomeOnBootBox";
+            SettingShowWelcomeOnBootBox.Ripple = true;
+            SettingShowWelcomeOnBootBox.Size = new Size(268, 37);
+            SettingShowWelcomeOnBootBox.TabIndex = 14;
+            SettingShowWelcomeOnBootBox.Text = "Show Welcome Page On Boot";
+            SettingShowWelcomeOnBootBox.UseAccentColor = false;
+            SettingShowWelcomeOnBootBox.UseVisualStyleBackColor = true;
+            // 
+            // SettingAboutBtn
+            // 
+            SettingAboutBtn.AutoSize = false;
+            SettingAboutBtn.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            SettingAboutBtn.Density = MaterialButton.MaterialButtonDensity.Default;
+            SettingAboutBtn.Depth = 0;
+            SettingAboutBtn.HighEmphasis = true;
+            SettingAboutBtn.Icon = null;
+            SettingAboutBtn.IconType = MaterialButton.MaterialIconType.Rebase;
+            SettingAboutBtn.Location = new Point(12, 593);
+            SettingAboutBtn.Margin = new Padding(4, 6, 4, 6);
+            SettingAboutBtn.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.HOVER;
+            SettingAboutBtn.Name = "SettingAboutBtn";
+            SettingAboutBtn.NoAccentTextColor = Color.Empty;
+            SettingAboutBtn.Size = new Size(336, 34);
+            SettingAboutBtn.TabIndex = 13;
+            SettingAboutBtn.Text = "About Program";
+            SettingAboutBtn.Type = MaterialButton.MaterialButtonType.Outlined;
+            SettingAboutBtn.UseAccentColor = false;
+            SettingAboutBtn.UseVisualStyleBackColor = true;
+            SettingAboutBtn.Click += SettingAboutBtn_Click_2;
+            // 
+            // materialLabel6
+            // 
+            materialLabel6.Depth = 0;
+            materialLabel6.Font = new Font("Roboto", 16F, FontStyle.Regular, GraphicsUnit.Pixel);
+            materialLabel6.FontType = ReaLTaiizor.Manager.MaterialSkinManager.FontType.Subtitle1;
+            materialLabel6.Location = new Point(23, 567);
+            materialLabel6.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.HOVER;
+            materialLabel6.Name = "materialLabel6";
+            materialLabel6.Size = new Size(292, 20);
+            materialLabel6.TabIndex = 12;
+            materialLabel6.Text = "About";
+            // 
+            // SettingAPIKeyTabs
+            // 
+            SettingAPIKeyTabs.Controls.Add(tabPage2);
+            SettingAPIKeyTabs.Controls.Add(tabPage3);
+            SettingAPIKeyTabs.Controls.Add(tabPage4);
+            SettingAPIKeyTabs.Controls.Add(tabPage5);
+            SettingAPIKeyTabs.Controls.Add(tabPage6);
+            SettingAPIKeyTabs.Depth = 0;
+            SettingAPIKeyTabs.Location = new Point(12, 383);
+            SettingAPIKeyTabs.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.HOVER;
+            SettingAPIKeyTabs.Multiline = true;
+            SettingAPIKeyTabs.Name = "SettingAPIKeyTabs";
+            SettingAPIKeyTabs.SelectedIndex = 0;
+            SettingAPIKeyTabs.Size = new Size(336, 138);
+            SettingAPIKeyTabs.TabIndex = 11;
+            // 
+            // tabPage2
+            // 
+            tabPage2.Controls.Add(materialLabel9);
+            tabPage2.Location = new Point(4, 26);
+            tabPage2.Name = "tabPage2";
+            tabPage2.Padding = new Padding(3);
+            tabPage2.Size = new Size(328, 108);
+            tabPage2.TabIndex = 0;
+            tabPage2.Text = "0";
+            tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // materialLabel9
+            // 
+            materialLabel9.Depth = 0;
+            materialLabel9.Font = new Font("Roboto Medium", 20F, FontStyle.Bold, GraphicsUnit.Pixel);
+            materialLabel9.FontType = ReaLTaiizor.Manager.MaterialSkinManager.FontType.H6;
+            materialLabel9.Location = new Point(8, 12);
+            materialLabel9.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.HOVER;
+            materialLabel9.Name = "materialLabel9";
+            materialLabel9.Size = new Size(313, 53);
+            materialLabel9.TabIndex = 10;
+            materialLabel9.Text = "Undefined API Provider";
+            // 
+            // tabPage3
+            // 
+            tabPage3.Controls.Add(SettingGeminiApiKeyBox);
+            tabPage3.Location = new Point(4, 26);
+            tabPage3.Name = "tabPage3";
+            tabPage3.Padding = new Padding(3);
+            tabPage3.Size = new Size(328, 108);
+            tabPage3.TabIndex = 1;
+            tabPage3.Text = "1";
+            tabPage3.UseVisualStyleBackColor = true;
+            // 
+            // SettingGeminiApiKeyBox
+            // 
+            SettingGeminiApiKeyBox.AnimateReadOnly = false;
+            SettingGeminiApiKeyBox.AutoCompleteMode = AutoCompleteMode.None;
+            SettingGeminiApiKeyBox.AutoCompleteSource = AutoCompleteSource.None;
+            SettingGeminiApiKeyBox.BackgroundImageLayout = ImageLayout.None;
+            SettingGeminiApiKeyBox.CharacterCasing = CharacterCasing.Normal;
+            SettingGeminiApiKeyBox.Depth = 0;
+            SettingGeminiApiKeyBox.Font = new Font("Microsoft Sans Serif", 16F, FontStyle.Regular, GraphicsUnit.Pixel);
+            SettingGeminiApiKeyBox.HideSelection = true;
+            SettingGeminiApiKeyBox.Hint = "API key";
+            SettingGeminiApiKeyBox.LeadingIcon = null;
+            SettingGeminiApiKeyBox.Location = new Point(19, 3);
+            SettingGeminiApiKeyBox.MaxLength = 32767;
+            SettingGeminiApiKeyBox.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.OUT;
+            SettingGeminiApiKeyBox.Name = "SettingGeminiApiKeyBox";
+            SettingGeminiApiKeyBox.PasswordChar = '\0';
+            SettingGeminiApiKeyBox.PrefixSuffixText = null;
+            SettingGeminiApiKeyBox.ReadOnly = false;
+            SettingGeminiApiKeyBox.RightToLeft = RightToLeft.No;
+            SettingGeminiApiKeyBox.SelectedText = "";
+            SettingGeminiApiKeyBox.SelectionLength = 0;
+            SettingGeminiApiKeyBox.SelectionStart = 0;
+            SettingGeminiApiKeyBox.ShortcutsEnabled = true;
+            SettingGeminiApiKeyBox.Size = new Size(313, 48);
+            SettingGeminiApiKeyBox.TabIndex = 0;
+            SettingGeminiApiKeyBox.TabStop = false;
+            SettingGeminiApiKeyBox.TextAlign = HorizontalAlignment.Left;
+            SettingGeminiApiKeyBox.TrailingIcon = null;
+            SettingGeminiApiKeyBox.UseSystemPasswordChar = false;
+            // 
+            // tabPage4
+            // 
+            tabPage4.Controls.Add(materialLabel7);
+            tabPage4.Location = new Point(4, 26);
+            tabPage4.Name = "tabPage4";
+            tabPage4.Padding = new Padding(3);
+            tabPage4.Size = new Size(328, 108);
+            tabPage4.TabIndex = 2;
+            tabPage4.Text = "2";
+            tabPage4.UseVisualStyleBackColor = true;
+            // 
+            // materialLabel7
+            // 
+            materialLabel7.Depth = 0;
+            materialLabel7.Font = new Font("Roboto Medium", 20F, FontStyle.Bold, GraphicsUnit.Pixel);
+            materialLabel7.FontType = ReaLTaiizor.Manager.MaterialSkinManager.FontType.H6;
+            materialLabel7.Location = new Point(7, 3);
+            materialLabel7.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.HOVER;
+            materialLabel7.Name = "materialLabel7";
+            materialLabel7.Size = new Size(313, 53);
+            materialLabel7.TabIndex = 9;
+            materialLabel7.Text = "Currently not supported. Please subscribe to upgrades.";
+            // 
+            // tabPage5
+            // 
+            tabPage5.Controls.Add(materialLabel8);
+            tabPage5.Location = new Point(4, 26);
+            tabPage5.Name = "tabPage5";
+            tabPage5.Padding = new Padding(3);
+            tabPage5.Size = new Size(328, 108);
+            tabPage5.TabIndex = 3;
+            tabPage5.Text = "3";
+            tabPage5.UseVisualStyleBackColor = true;
+            // 
+            // materialLabel8
+            // 
+            materialLabel8.Depth = 0;
+            materialLabel8.Font = new Font("Roboto Medium", 20F, FontStyle.Bold, GraphicsUnit.Pixel);
+            materialLabel8.FontType = ReaLTaiizor.Manager.MaterialSkinManager.FontType.H6;
+            materialLabel8.Location = new Point(12, 3);
+            materialLabel8.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.HOVER;
+            materialLabel8.Name = "materialLabel8";
+            materialLabel8.Size = new Size(313, 49);
+            materialLabel8.TabIndex = 10;
+            materialLabel8.Text = "Currently not supported. Please subscribe to upgrades.";
+            // 
+            // tabPage6
+            // 
+            tabPage6.Controls.Add(SettingEnableThinkingSwitch);
+            tabPage6.Controls.Add(SettingDsApiKeyBox);
+            tabPage6.Location = new Point(4, 26);
+            tabPage6.Name = "tabPage6";
+            tabPage6.Padding = new Padding(3);
+            tabPage6.Size = new Size(328, 108);
+            tabPage6.TabIndex = 4;
+            tabPage6.Text = "4";
+            tabPage6.UseVisualStyleBackColor = true;
+            // 
+            // SettingEnableThinkingSwitch
+            // 
+            SettingEnableThinkingSwitch.AutoSize = true;
+            SettingEnableThinkingSwitch.Depth = 0;
+            SettingEnableThinkingSwitch.Location = new Point(19, 57);
+            SettingEnableThinkingSwitch.Margin = new Padding(0);
+            SettingEnableThinkingSwitch.MouseLocation = new Point(-1, -1);
+            SettingEnableThinkingSwitch.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.HOVER;
+            SettingEnableThinkingSwitch.Name = "SettingEnableThinkingSwitch";
+            SettingEnableThinkingSwitch.Ripple = true;
+            SettingEnableThinkingSwitch.Size = new Size(172, 37);
+            SettingEnableThinkingSwitch.TabIndex = 16;
+            SettingEnableThinkingSwitch.Text = "Enable Thinking";
+            SettingEnableThinkingSwitch.UseAccentColor = false;
+            SettingEnableThinkingSwitch.UseVisualStyleBackColor = true;
+            // 
+            // SettingDsApiKeyBox
+            // 
+            SettingDsApiKeyBox.AnimateReadOnly = false;
+            SettingDsApiKeyBox.AutoCompleteMode = AutoCompleteMode.None;
+            SettingDsApiKeyBox.AutoCompleteSource = AutoCompleteSource.None;
+            SettingDsApiKeyBox.BackgroundImageLayout = ImageLayout.None;
+            SettingDsApiKeyBox.CharacterCasing = CharacterCasing.Normal;
+            SettingDsApiKeyBox.Depth = 0;
+            SettingDsApiKeyBox.Font = new Font("Microsoft Sans Serif", 16F, FontStyle.Regular, GraphicsUnit.Pixel);
+            SettingDsApiKeyBox.HideSelection = true;
+            SettingDsApiKeyBox.Hint = "API key";
+            SettingDsApiKeyBox.LeadingIcon = null;
+            SettingDsApiKeyBox.Location = new Point(19, 6);
+            SettingDsApiKeyBox.MaxLength = 32767;
+            SettingDsApiKeyBox.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.OUT;
+            SettingDsApiKeyBox.Name = "SettingDsApiKeyBox";
+            SettingDsApiKeyBox.PasswordChar = '\0';
+            SettingDsApiKeyBox.PrefixSuffixText = null;
+            SettingDsApiKeyBox.ReadOnly = false;
+            SettingDsApiKeyBox.RightToLeft = RightToLeft.No;
+            SettingDsApiKeyBox.SelectedText = "";
+            SettingDsApiKeyBox.SelectionLength = 0;
+            SettingDsApiKeyBox.SelectionStart = 0;
+            SettingDsApiKeyBox.ShortcutsEnabled = true;
+            SettingDsApiKeyBox.Size = new Size(313, 48);
+            SettingDsApiKeyBox.TabIndex = 1;
+            SettingDsApiKeyBox.TabStop = false;
+            SettingDsApiKeyBox.TextAlign = HorizontalAlignment.Left;
+            SettingDsApiKeyBox.TrailingIcon = null;
+            SettingDsApiKeyBox.UseSystemPasswordChar = false;
+            // 
+            // SettingServiceProviderBox
+            // 
+            SettingServiceProviderBox.AutoResize = false;
+            SettingServiceProviderBox.BackColor = Color.FromArgb(255, 255, 255);
+            SettingServiceProviderBox.Depth = 0;
+            SettingServiceProviderBox.DrawMode = DrawMode.OwnerDrawVariable;
+            SettingServiceProviderBox.DropDownHeight = 174;
+            SettingServiceProviderBox.DropDownStyle = ComboBoxStyle.DropDownList;
+            SettingServiceProviderBox.DropDownWidth = 121;
+            SettingServiceProviderBox.Font = new Font("Microsoft Sans Serif", 14F, FontStyle.Bold, GraphicsUnit.Pixel);
+            SettingServiceProviderBox.ForeColor = Color.FromArgb(222, 0, 0, 0);
+            SettingServiceProviderBox.FormattingEnabled = true;
+            SettingServiceProviderBox.Hint = "Service Provider";
+            SettingServiceProviderBox.IntegralHeight = false;
+            SettingServiceProviderBox.ItemHeight = 43;
+            SettingServiceProviderBox.Items.AddRange(new object[] { "Deepseek - 深度求索", "Google Gemini", "OpenAI ChatGPT", "Local Service" });
+            SettingServiceProviderBox.Location = new Point(12, 328);
+            SettingServiceProviderBox.MaxDropDownItems = 4;
+            SettingServiceProviderBox.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.OUT;
+            SettingServiceProviderBox.Name = "SettingServiceProviderBox";
+            SettingServiceProviderBox.Size = new Size(340, 49);
+            SettingServiceProviderBox.StartIndex = 0;
+            SettingServiceProviderBox.TabIndex = 10;
+            SettingServiceProviderBox.SelectedIndexChanged += SettingServiceProviderBox_SelectedIndexChanged;
+            // 
+            // materialLabel5
+            // 
+            materialLabel5.Depth = 0;
+            materialLabel5.Font = new Font("Roboto", 16F, FontStyle.Regular, GraphicsUnit.Pixel);
+            materialLabel5.FontType = ReaLTaiizor.Manager.MaterialSkinManager.FontType.Subtitle1;
+            materialLabel5.Location = new Point(23, 305);
+            materialLabel5.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.HOVER;
+            materialLabel5.Name = "materialLabel5";
+            materialLabel5.Size = new Size(292, 20);
+            materialLabel5.TabIndex = 9;
+            materialLabel5.Text = "Service";
+            // 
+            // materialLabel4
+            // 
+            materialLabel4.Depth = 0;
+            materialLabel4.Font = new Font("Roboto", 16F, FontStyle.Regular, GraphicsUnit.Pixel);
+            materialLabel4.FontType = ReaLTaiizor.Manager.MaterialSkinManager.FontType.Subtitle1;
+            materialLabel4.Location = new Point(23, 142);
+            materialLabel4.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.HOVER;
+            materialLabel4.Name = "materialLabel4";
+            materialLabel4.Size = new Size(292, 20);
+            materialLabel4.TabIndex = 8;
+            materialLabel4.Text = "Appearance";
             // 
             // ThemeSelectBox
             // 
@@ -762,7 +1096,7 @@ namespace ImgHorizon.HyAgent
             ThemeSelectBox.IntegralHeight = false;
             ThemeSelectBox.ItemHeight = 43;
             ThemeSelectBox.Items.AddRange(new object[] { "Oceanic (Default)", "DeepOcean", "Metal", "Sakura", "Watermelon", "Mango", "Grass" });
-            ThemeSelectBox.Location = new Point(12, 196);
+            ThemeSelectBox.Location = new Point(12, 165);
             ThemeSelectBox.MaxDropDownItems = 4;
             ThemeSelectBox.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.OUT;
             ThemeSelectBox.Name = "ThemeSelectBox";
@@ -797,7 +1131,7 @@ namespace ImgHorizon.HyAgent
             // 
             DarkModeSwitch.AutoSize = true;
             DarkModeSwitch.Depth = 0;
-            DarkModeSwitch.Location = new Point(12, 127);
+            DarkModeSwitch.Location = new Point(12, 217);
             DarkModeSwitch.Margin = new Padding(0);
             DarkModeSwitch.MouseLocation = new Point(-1, -1);
             DarkModeSwitch.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.HOVER;
@@ -850,6 +1184,13 @@ namespace ImgHorizon.HyAgent
             SettingPanel.ResumeLayout(false);
             SettingContentsPanel.ResumeLayout(false);
             SettingContentsPanel.PerformLayout();
+            SettingAPIKeyTabs.ResumeLayout(false);
+            tabPage2.ResumeLayout(false);
+            tabPage3.ResumeLayout(false);
+            tabPage4.ResumeLayout(false);
+            tabPage5.ResumeLayout(false);
+            tabPage6.ResumeLayout(false);
+            tabPage6.PerformLayout();
             ResumeLayout(false);
         }
         #endregion
@@ -900,5 +1241,24 @@ namespace ImgHorizon.HyAgent
         private MaterialButton SaveAndExitSettingsBtn;
         private MaterialScrollBar SettingPageScrollBar;
         private MaterialComboBox ThemeSelectBox;
+        private MaterialLabel materialLabel5;
+        private MaterialLabel materialLabel4;
+        private MaterialComboBox SettingServiceProviderBox;
+        private MaterialButton SettingAboutBtn;
+        private MaterialLabel materialLabel6;
+        private MaterialTabControl SettingAPIKeyTabs;
+        private System.Windows.Forms.TabPage tabPage2;
+        private System.Windows.Forms.TabPage tabPage3;
+        private MaterialTextBoxEdit SettingGeminiApiKeyBox;
+        private System.Windows.Forms.TabPage tabPage4;
+        private MaterialLabel materialLabel7;
+        private System.Windows.Forms.TabPage tabPage5;
+        private MaterialLabel materialLabel8;
+        private System.Windows.Forms.TabPage tabPage6;
+        private MaterialTextBoxEdit SettingDsApiKeyBox;
+        private MaterialLabel materialLabel9;
+        private MaterialSwitch SettingShowWelcomeOnBootBox;
+        private MaterialSwitch SettingEnableStreamingSwitch;
+        private MaterialSwitch SettingEnableThinkingSwitch;
     }
 }
