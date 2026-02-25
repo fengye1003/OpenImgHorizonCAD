@@ -3,9 +3,11 @@ using Google.GenAI.Types;
 using ImgHorizon.HyAgent.AIHelpers;
 using ImgHorizon.HyAgent.AIHelpers.DeepseekApi;
 using ImgHorizon.HyAgent.Essencial_Repos;
+using ReaLTaiizor.Colors;
 using ReaLTaiizor.Controls;
 using ReaLTaiizor.Forms;
 using ReaLTaiizor.Manager;
+using ReaLTaiizor.Util;
 using System.Collections;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -30,11 +32,13 @@ namespace ImgHorizon.HyAgent
 
 
         ServiceProviders ServiceProvider;
+        MaterialColorScheme SelectedTheme = Themes.Oceanic;
         string ApiKey = "unknown";
         bool Initialized = false;
         const string PROPERTIES_PATH = "./.imgHorizon/Properties/main.properties";
         const string RUNNING_TITLE = "HyAgent AI";
         string latestOutput = "";
+        bool darkMode = false;
 
 
         Google.GenAI.Client? GeminiClient;
@@ -61,11 +65,14 @@ namespace ImgHorizon.HyAgent
             { "deepseekKey", "unknown" },
             { "apiKey", "unknown" },
             { "type", "HyAgent.MainConfig" },
-            { "skipWelcomeOnBoot", "false" }
+            { "skipWelcomeOnBoot", "false" },
+            { "darkMode", "false" },
+            { "theme", "oceanic" }
         };
 
         void ResizeControls(Control item, float factor)
         {
+
             try
             {
                 var TabPageItem = (MaterialTabControl)item;
@@ -77,6 +84,21 @@ namespace ImgHorizon.HyAgent
                         c3.Size = new Size((int)(c3.Width * factor), (int)(c3.Height * factor));
                         ResizeControls(c3, factor);
                     }
+                }
+
+            }
+            catch
+            {
+
+            }
+            try
+            {
+                var panelItem = (System.Windows.Forms.Panel)item;
+                foreach (Control c3 in panelItem.Controls)
+                {
+                    c3.Location = new Point((int)(c3.Location.X * factor), (int)(c3.Location.Y * factor));
+                    c3.Size = new Size((int)(c3.Width * factor), (int)(c3.Height * factor));
+                    ResizeControls(c3, factor);
                 }
 
             }
@@ -127,6 +149,48 @@ namespace ImgHorizon.HyAgent
                 InitializeAI();
                 Text = RUNNING_TITLE;
             }
+            darkMode = (string)Config["darkMode"]! == "true";
+            MaterialSkinManager.Instance.Theme = darkMode ? MaterialSkinManager.Themes.DARK : MaterialSkinManager.Themes.LIGHT;
+            DarkModeSwitch.Checked = darkMode;
+            UpdateColors();
+            switch ((string)Config["theme"]!)
+            {
+                case "oceanic":
+                    SelectedTheme = Themes.Oceanic;
+                    ThemeSelectBox.Text = "Oceanic (Default)";
+                    break;
+                case "metal":
+                    SelectedTheme = Themes.Metal;
+                    ThemeSelectBox.Text = "Metal";
+                    break;
+                case "sakura":
+                    SelectedTheme = Themes.Sakura;
+                    ThemeSelectBox.Text = "Sakura";
+                    break;
+                case "watermelon":
+                    SelectedTheme = Themes.Watermelon;
+                    ThemeSelectBox.Text = "Watermelon";
+                    break;
+                case "mango":
+                    SelectedTheme = Themes.Mango;
+                    ThemeSelectBox.Text = "Mango";
+                    break;
+                case "grass":
+                    SelectedTheme = Themes.Grass;
+                    ThemeSelectBox.Text = "Grass";
+                    break;
+                case "deepocean":
+                    SelectedTheme = Themes.DeepOcean;
+                    ThemeSelectBox.Text = "DeepOcean";
+                    break;
+                default:
+                    SelectedTheme = Themes.Oceanic;
+                    ThemeSelectBox.Text = "Oceanic (Default)";
+                    Config["theme"] = "oceanic";
+                    PropertiesHelper.Save(PROPERTIES_PATH, Config);
+                    break;
+            }
+            UpdateColors();
         }
 
         private void HyAgentMainWindow_Load(object sender, EventArgs e)
@@ -702,8 +766,10 @@ namespace ImgHorizon.HyAgent
             DialogBox.AppendText($"\r\n\r\nVersion: {Program.Version}\r\n");
             WindowScalingHelper helper = new();
             float factor = helper.GetDeviceScaleFactor(GoToChatBtn);
+            float factorSqrt = helper.GetDeviceScaleFactorSqrt(GoToChatBtn);
             Width = (int)(Width * factor);
             Height = (int)(Height * factor);
+            DialogBox.Font = new Font(DialogBox.Font.FontFamily, DialogBox.Font.Size);
             foreach (Control item in Controls)
             {
                 item.Location = new Point((int)(item.Location.X * factor), (int)(item.Location.Y * factor));
@@ -733,11 +799,42 @@ namespace ImgHorizon.HyAgent
             {
                 MaterialSkinManager.Instance.Theme = MaterialSkinManager.Themes.LIGHT;
             }
+            UpdateColors();
         }
 
         private void SaveAndExitSettingsBtn_Click(object sender, EventArgs e)
         {
             PageTabControl.SelectTab(4);
+            Config["darkMode"] = DarkModeSwitch.Checked ? "true" : "false";
+            switch (ThemeSelectBox.Text)
+            {
+                case "Oceanic (Default)":
+                    Config["theme"] = "oceanic";
+                    break;
+                case "Metal":
+                    Config["theme"] = "metal";
+                    break;
+                case "Sakura":
+                    Config["theme"] = "sakura";
+                    break;
+                case "Watermelon":
+                    Config["theme"] = "watermelon";
+                    break;
+                case "Mango":
+                    Config["theme"] = "mango";
+                    break;
+                case "Grass":
+                    Config["theme"] = "grass";
+                    break;
+                case "DeepOcean":
+                    Config["theme"] = "deepocean";
+                    break;
+                default:
+                    Config["theme"] = "oceanic";
+                    break;
+            }
+
+            PropertiesHelper.Save(PROPERTIES_PATH, Config);
         }
 
         private void SettingPanel_VisibleChanged(object sender, EventArgs e)
@@ -753,6 +850,93 @@ namespace ImgHorizon.HyAgent
         private void panel2_LocationChanged(object sender, EventArgs e)
         {
             Thread.Sleep(100);
+        }
+
+        class Themes
+        {
+            public static MaterialColorScheme Oceanic = new MaterialColorScheme(
+                        MaterialPrimary.Indigo500,
+                        MaterialPrimary.Indigo700,
+                        MaterialPrimary.Indigo100,
+                        MaterialAccent.Pink200,
+                        MaterialTextShade.LIGHT);
+            public static MaterialColorScheme DeepOcean = new MaterialColorScheme(
+                        MaterialPrimary.Teal500,
+                        MaterialPrimary.Teal700,
+                        MaterialPrimary.Teal200,
+                        MaterialAccent.Pink200,
+                        MaterialTextShade.LIGHT);
+            public static MaterialColorScheme Metal = new MaterialColorScheme(
+                        MaterialPrimary.BlueGrey800,
+                        MaterialPrimary.BlueGrey900,
+                        MaterialPrimary.BlueGrey500,
+                        MaterialAccent.LightBlue200,
+                        MaterialTextShade.LIGHT);
+            public static MaterialColorScheme Sakura = new MaterialColorScheme(
+                        MaterialPrimary.Pink800,
+                        MaterialPrimary.Pink900,
+                        MaterialPrimary.Pink500,
+                        MaterialAccent.Red200,
+                        MaterialTextShade.LIGHT);
+            public static MaterialColorScheme Watermelon = new MaterialColorScheme(
+                        MaterialPrimary.Red800,
+                        MaterialPrimary.Red900,
+                        MaterialPrimary.Red500,
+                        MaterialAccent.Green200,
+                        MaterialTextShade.LIGHT);
+            public static MaterialColorScheme Mango = new MaterialColorScheme(
+                        MaterialPrimary.Yellow800,
+                        MaterialPrimary.Yellow900,
+                        MaterialPrimary.Yellow500,
+                        MaterialAccent.DeepOrange200,
+                        MaterialTextShade.LIGHT);
+            public static MaterialColorScheme Grass = new MaterialColorScheme(
+                        MaterialPrimary.Green600,
+                        MaterialPrimary.Green700,
+                        MaterialPrimary.Green200,
+                        MaterialAccent.Red100,
+                        MaterialTextShade.LIGHT);
+        }
+
+        private void UpdateColors()
+        {
+            MaterialSkinManager.Instance.ColorScheme = SelectedTheme;
+            Invalidate();
+            Refresh();
+        }
+
+        private void ThemeSelectBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            switch (ThemeSelectBox.Text)
+            {
+                case "Oceanic (Default)":
+                    SelectedTheme = Themes.Oceanic;
+                    break;
+                case "Metal":
+                    SelectedTheme = Themes.Metal;
+                    break;
+                case "Sakura":
+                    SelectedTheme = Themes.Sakura;
+                    break;
+                case "Watermelon":
+                    SelectedTheme = Themes.Watermelon;
+                    break;
+                case "Mango":
+                    SelectedTheme = Themes.Mango;
+                    break;
+                case "Grass":
+                    SelectedTheme = Themes.Grass;
+                    break;
+                case "DeepOcean":
+                    SelectedTheme = Themes.DeepOcean;
+                    break;
+                default:
+                    SelectedTheme = Themes.Oceanic;
+                    Config["theme"] = "oceanic";
+                    PropertiesHelper.Save(PROPERTIES_PATH, Config);
+                    break;
+            }
+            UpdateColors();
         }
     }
 }

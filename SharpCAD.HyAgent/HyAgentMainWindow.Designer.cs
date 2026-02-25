@@ -77,6 +77,7 @@ namespace ImgHorizon.HyAgent
             SettingPageScrollBar = new MaterialScrollBar();
             SettingPanel = new System.Windows.Forms.Panel();
             SettingContentsPanel = new System.Windows.Forms.Panel();
+            ThemeSelectBox = new MaterialComboBox();
             SaveAndExitSettingsBtn = new MaterialButton();
             DarkModeSwitch = new MaterialSwitch();
             materialLabel1 = new MaterialLabel();
@@ -735,6 +736,7 @@ namespace ImgHorizon.HyAgent
             // 
             // SettingContentsPanel
             // 
+            SettingContentsPanel.Controls.Add(ThemeSelectBox);
             SettingContentsPanel.Controls.Add(SaveAndExitSettingsBtn);
             SettingContentsPanel.Controls.Add(DarkModeSwitch);
             SettingContentsPanel.Controls.Add(materialLabel1);
@@ -743,6 +745,31 @@ namespace ImgHorizon.HyAgent
             SettingContentsPanel.Size = new Size(352, 1071);
             SettingContentsPanel.TabIndex = 0;
             SettingContentsPanel.LocationChanged += panel2_LocationChanged;
+            // 
+            // ThemeSelectBox
+            // 
+            ThemeSelectBox.AutoResize = false;
+            ThemeSelectBox.BackColor = Color.FromArgb(255, 255, 255);
+            ThemeSelectBox.Depth = 0;
+            ThemeSelectBox.DrawMode = DrawMode.OwnerDrawVariable;
+            ThemeSelectBox.DropDownHeight = 174;
+            ThemeSelectBox.DropDownStyle = ComboBoxStyle.DropDownList;
+            ThemeSelectBox.DropDownWidth = 121;
+            ThemeSelectBox.Font = new Font("Microsoft Sans Serif", 14F, FontStyle.Bold, GraphicsUnit.Pixel);
+            ThemeSelectBox.ForeColor = Color.FromArgb(222, 0, 0, 0);
+            ThemeSelectBox.FormattingEnabled = true;
+            ThemeSelectBox.Hint = "Color";
+            ThemeSelectBox.IntegralHeight = false;
+            ThemeSelectBox.ItemHeight = 43;
+            ThemeSelectBox.Items.AddRange(new object[] { "Oceanic (Default)", "DeepOcean", "Metal", "Sakura", "Watermelon", "Mango", "Grass" });
+            ThemeSelectBox.Location = new Point(12, 196);
+            ThemeSelectBox.MaxDropDownItems = 4;
+            ThemeSelectBox.MouseState = ReaLTaiizor.Helper.MaterialDrawHelper.MaterialMouseState.OUT;
+            ThemeSelectBox.Name = "ThemeSelectBox";
+            ThemeSelectBox.Size = new Size(336, 49);
+            ThemeSelectBox.StartIndex = 0;
+            ThemeSelectBox.TabIndex = 7;
+            ThemeSelectBox.SelectedIndexChanged += ThemeSelectBox_SelectedIndexChanged;
             // 
             // SaveAndExitSettingsBtn
             // 
@@ -872,5 +899,6 @@ namespace ImgHorizon.HyAgent
         private MaterialSwitch DarkModeSwitch;
         private MaterialButton SaveAndExitSettingsBtn;
         private MaterialScrollBar SettingPageScrollBar;
+        private MaterialComboBox ThemeSelectBox;
     }
 }
