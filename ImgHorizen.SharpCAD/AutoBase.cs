@@ -5,14 +5,14 @@ using Autodesk.AutoCAD.Geometry;
 using Autodesk.AutoCAD.Ribbon;
 using Autodesk.AutoCAD.Runtime;
 using Autodesk.AutoCAD.Windows;
-using ImgHorizen.CADExample;
+using ImgHorizon.CADExample;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
 [assembly: ComVisible(false)]
 [assembly: ExtensionApplication(typeof(AutoBase))]
 [assembly: CommandClass(typeof(AutoBase))]
-namespace ImgHorizen.CADExample
+namespace ImgHorizon.CADExample
 {
 
     public class AutoBase : IExtensionApplication

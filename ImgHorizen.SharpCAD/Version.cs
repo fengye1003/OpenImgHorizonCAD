@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ImgHorizen.CADExample
+namespace ImgHorizon.CADExample
 {
     internal class Version
     {
