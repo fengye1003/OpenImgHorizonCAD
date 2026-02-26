@@ -52,7 +52,7 @@ The project is currently in the initial stage of feature development. It has imp
 
 - [ ] Custom SLM (Small Language Model)
 
-- [ ] Q&A Mode
+- [x] Q&A Mode
 
 - [ ] Context Implementation
 
