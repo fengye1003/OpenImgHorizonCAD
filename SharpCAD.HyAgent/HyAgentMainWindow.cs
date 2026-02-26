@@ -43,6 +43,7 @@ namespace ImgHorizon.HyAgent
         bool deepseekThinking = true;
         bool streaming = true;
         bool darkMode = false;
+        bool isDialogueMode = false;
 
 
         Google.GenAI.Client? GeminiClient;
@@ -52,12 +53,16 @@ namespace ImgHorizon.HyAgent
               "Your responses require no explanations, analysis, or formatting adjustments. " +
               "Do not provide any additional information or ask questions. " +
               "Do not include suggested questions or other non-command-intent dialogue content at the end of your replies. " +
-              "Simply respond with a few lines of text containing commands that can be directly executed via CAD's command line. " +
+              "Simply respond with a few lines of text containing commands " +
+              "that can be directly executed via CAD's command line. " +
               "Only if the latest user input contains [dialogue] should you include other text. " +
               "You do not need to confirm your understanding of the user's instructions by outputing. " +
-              "You can press ESC key with outputing {ESCAPE}. You should note that you are operating CAD and some command won't exit after line changed." +
-              "You must output one CAD command on one single line, paying attention to the grammar of absolute and relative positions." +
-              "For example, to draw a line from 0,0 to 1,1, you need to output \"LINE 0,0 1,1\" rather than \"LINE \r\n0,0\r\n1,1\"" +
+              "You can press ESC key with outputing {ESCAPE}. " +
+              "You should note that you are operating CAD and some command won't exit after line changed." +
+              "You must output one CAD command on one single line, " +
+              "paying attention to the grammar of absolute and relative positions." +
+              "For example, to draw a line from 0,0 to 1,1, you need to output \"LINE 0,0 1,1\" " +
+              "rather than \"LINE \r\n0,0\r\n1,1\"" +
               "Starting from the next line, assist the user by outputting the commands that need to be executed: \r\n";
 
 
@@ -161,7 +166,8 @@ namespace ImgHorizon.HyAgent
                 Text = RUNNING_TITLE;
             }
             darkMode = (string)Config["darkMode"]! == "true";
-            MaterialSkinManager.Instance.Theme = darkMode ? MaterialSkinManager.Themes.DARK : MaterialSkinManager.Themes.LIGHT;
+            MaterialSkinManager.Instance.Theme = darkMode ? 
+                MaterialSkinManager.Themes.DARK : MaterialSkinManager.Themes.LIGHT;
             DarkModeSwitch.Checked = darkMode;
             UpdateColors();
             switch ((string)Config["theme"]!)
@@ -345,7 +351,8 @@ namespace ImgHorizon.HyAgent
                     ServiceConfigueTitleLabel.Text += c;
                 }
                 Thread.Sleep(500);
-                foreach (char c in "Select your service provider and enter your API key - After all, you need an online source before start using AI.")
+                foreach (char c in "Select your service provider and enter your API key - " +
+                "After all, you need an online source before start using AI.")
                 {
                     Thread.Sleep(50);
                     ServiceConfigueSubtitleLabel.Text += c;
@@ -504,7 +511,11 @@ namespace ImgHorizon.HyAgent
             {
                 try
                 {
-                    Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument.SendStringToExecute(latestOutput.Replace("{ESCAPE}", "\r\n(command)\r\n").Replace("\r\n", " ").Replace("\n", " "), true, false, true);
+                    Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument.SendStringToExecute(
+                        latestOutput.Replace("{ESCAPE}", "\r\n(command)\r\n").Replace("\r\n", " ").Replace("\n", " "), 
+                        true, 
+                        false, 
+                        true);
                     DialogBox.AppendText("\r\n\r\nHyAgent AI: \r\nSuccessfully executed command.\r\n");
                 }
                 catch (Exception ex)
@@ -529,9 +540,27 @@ namespace ImgHorizon.HyAgent
                 this.Close();
             };
 
+            ToolStripMenuItem dialogueMode = new();
+            dialogueMode.Text = "- Question Mode";
+            dialogueMode.Click += (sender, e) =>
+            {
+                if (dialogueMode.Text == "- Question Mode")
+                {
+                    dialogueMode.Text = "√ Question Mode";
+                    isDialogueMode = true;
+                }
+                else
+                {
+                    dialogueMode.Text = "- Question Mode";
+                    isDialogueMode = false;
+                }
+            };
+
             actionMenu.Items.Add(executeLatestInCAD);
+            actionMenu.Items.Add(dialogueMode);
             actionMenu.Items.Add(openSettingsPage);
             actionMenu.Items.Add(exitApp);
+            
 
             SettingPanel.AutoScroll = false;
             SettingPageScrollBar.Minimum = 0;
@@ -673,14 +702,22 @@ namespace ImgHorizon.HyAgent
                         DsRefreshingUI = false;
                         readIndex += 1;
                     });
-                    await DeepseekClient!.GenerateTextStreamAsync(this, progress, SystemInstructions: Prompts, Prompts: PromptBox.Text, Thinking: Thinking, Model: Thinking ? "deepseek-reasoner" : "deepseek-chat");
+                    await DeepseekClient!.GenerateTextStreamAsync(this, 
+                        progress, 
+                        SystemInstructions: Prompts, 
+                        Prompts: (isDialogueMode ? "[dialogue]" : "") + PromptBox.Text, 
+                        Thinking: Thinking, 
+                        Model: Thinking ? "deepseek-reasoner" : "deepseek-chat");
                     //MessageBox.Show(PromptBox.Text);
                     result = result!.Replace("\n", "\r\n") + "\r\n{ESCAPE}";
                     if (Thinking)
                     {
                         this.Invoke(new Action(() =>
                         {
-                            DialogBox.Text = originDialog + "[Deepseek Think]\r\n" + reasoning + "\r\n[Deepseek Thinking Completed]\r\n" + result;
+                            DialogBox.Text = originDialog + 
+                            "[Deepseek Think]\r\n" 
+                            + reasoning 
+                            + "\r\n[Deepseek Thinking Completed]\r\n" + result;
                         }));
                     }
                     else
@@ -690,7 +727,8 @@ namespace ImgHorizon.HyAgent
                             DialogBox.Text = originDialog + result;
                         }));
                     }
-                    latestOutput = result;
+                    if (!isDialogueMode)
+                        latestOutput = result;
 
 
                 }
@@ -721,7 +759,11 @@ namespace ImgHorizon.HyAgent
             {
                 try
                 {
-                    Task<DeepseekResponse> t = DeepseekClient!.GenerateTextAsync(SystemInstructions: Prompts, Prompts: PromptBox.Text, Thinking: Thinking, Model: Thinking ? "deepseek-reasoner" : "deepseek-chat");
+                    Task<DeepseekResponse> t = DeepseekClient!.GenerateTextAsync(
+                        SystemInstructions: Prompts, 
+                        Prompts: (isDialogueMode ? "[dialogue]" : "") + PromptBox.Text, 
+                        Thinking: Thinking, 
+                        Model: Thinking ? "deepseek-reasoner" : "deepseek-chat");
                     if (Thinking)
                     {
                         string reasoning = DeepseekClient.ParseDeepSeekReasoningResponse(await t);
@@ -736,7 +778,8 @@ namespace ImgHorizon.HyAgent
                     {
                         DialogBox.AppendText("\r\n\r\nAI: \r\n" + result);
                     }));
-                    latestOutput = result;
+                    if (!isDialogueMode) 
+                        latestOutput = result;
                 }
                 catch (Exception ex)
                 {
@@ -762,12 +805,15 @@ namespace ImgHorizon.HyAgent
             try
             {
                 Task<GenerateContentResponse> t = GeminiClient!.Models.GenerateContentAsync(
-              model: "gemini-2.5-flash", contents: Prompts + PromptBox.Text
+              model: "gemini-2.5-flash", 
+              contents: Prompts + (isDialogueMode ? "[dialogue]" : "") + PromptBox.Text
             );
                 var response = await t;
-                string result = response.Candidates![0].Content!.Parts![0].Text!.Replace("\n", "\r\n") + "\r\n{ESCAPE}";
+                string result = response.Candidates![0].Content!.Parts![0].Text!.Replace("\n", "\r\n")
+                    + "\r\n{ESCAPE}";
                 DialogBox.AppendText("\r\n\r\nAI: \r\n" + result);
-                latestOutput = result;
+                if (!isDialogueMode) 
+                    latestOutput = result;
             }
             catch (Exception ex)
             {
@@ -791,7 +837,7 @@ namespace ImgHorizon.HyAgent
                 DialogBox.AppendText("[Working...]\r\n");
                 await foreach (var chunk in GeminiClient!.Models.GenerateContentStreamAsync(
                     model: "gemini-2.5-flash",
-                    contents: Prompts + PromptBox.Text
+                    contents: Prompts + (isDialogueMode ? "[dialogue]" : "") + PromptBox.Text
                  ))
                 {
                     this.Invoke(new Action(() =>
@@ -804,7 +850,8 @@ namespace ImgHorizon.HyAgent
                 result = result.Replace("\n", "\r\n") + "\r\n{ESCAPE}";
                 DialogBox.Text = originDialog + result;
 
-                latestOutput = result;
+                if (!isDialogueMode) 
+                    latestOutput = result;
             }
             catch (Exception ex)
             {
@@ -841,7 +888,8 @@ namespace ImgHorizon.HyAgent
             DialogBox.AppendText($"\r\n\r\nImgHorizonCAD HyAgent\r\n");
             DialogBox.AppendText($"By HYrecovery\r\n");
             DialogBox.AppendText($"A \"teko.IO SisTemS!\" Studio Project\r\n");
-            DialogBox.AppendText($"View https://eachother.work/ or https://github.com/fengye1003/OpenImgHorizenCAD for further information.\r\n");
+            DialogBox.AppendText($"View https://eachother.work/ " +
+                $"or https://github.com/fengye1003/OpenImgHorizenCAD for further information.\r\n");
             DialogBox.AppendText($"\r\n\r\nVersion: {Program.Version}\r\n");
             WindowScalingHelper helper = new();
             float factor = helper.GetDeviceScaleFactor(GoToChatBtn);
@@ -1099,7 +1147,8 @@ namespace ImgHorizon.HyAgent
                 "If there's anything against owners' rights, contact us and we will deal with it ASAP.\r\n\r\n" +
                 "相互科技工作室 2026 构思 & 打造 with <3.\r\n" +
                 "“在浪轻柔地拍到那恰好的礁石之前❤️‍" +
-                "\r\n我就做那自由的风🎐”", "About ImgHorizonCAD HyAgent", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                "\r\n我就做那自由的风🎐”", "About ImgHorizonCAD HyAgent", 
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }
